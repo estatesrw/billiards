@@ -2,18 +2,15 @@ import type { ReactNode } from "react";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { WhatsAppFab } from "./WhatsAppFab";
-import { I18nProvider } from "@/lib/i18n";
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
-    <I18nProvider>
-      <div className="min-h-screen flex flex-col">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <WhatsAppFab />
-      </div>
-    </I18nProvider>
+    <div className="min-h-screen flex flex-col">
+      <Nav />
+      <main className="flex-1">{children}</main>
+      <Footer />
+      <WhatsAppFab />
+    </div>
   );
 }
 
