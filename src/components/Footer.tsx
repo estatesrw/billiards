@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 export function Footer() {
   const { t } = useI18n();
   return (
-    <footer className="mt-32 border-t hairline bg-[oklch(0.04_0_0)]">
+    <footer className="mt-32 border-t hairline bg-cream-soft">
       <div className="container-lux py-20 grid gap-14 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="font-display text-3xl">B Trader Elite Billiards</div>

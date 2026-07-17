@@ -129,7 +129,7 @@ function Home() {
       </section>
 
       {/* Services overview */}
-      <section className="py-24 md:py-32 bg-[oklch(0.04_0_0)] border-y hairline">
+      <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
           <div className="max-w-2xl">
             <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — Services</div>
@@ -146,7 +146,7 @@ function Home() {
               { icon: Sparkles, title: "Repair", body: "Cushion replacement, rail work and full table restoration." },
               { icon: Star, title: "Custom Builds", body: "Bespoke finishes, brass inlays and cloth colors for signature spaces." },
             ].map((s) => (
-              <div key={s.title} className="bg-background p-8 group hover:bg-[oklch(0.08_0_0)] transition-colors">
+              <div key={s.title} className="bg-background p-8 group hover:bg-cream-soft transition-colors">
                 <s.icon className="w-8 h-8 text-gold" />
                 <h3 className="mt-6 font-display text-2xl">{s.title}</h3>
                 <p className="mt-3 text-sm text-muted-foreground">{s.body}</p>
@@ -228,7 +228,7 @@ function Home() {
       </section>
 
       {/* Testimonials preview */}
-      <section className="py-24 md:py-32 bg-[oklch(0.04_0_0)] border-y hairline">
+      <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
           <div className="text-xs uppercase tracking-[0.4em] text-gold text-center">05 — Voices</div>
           <h2 className="mt-4 font-display text-4xl md:text-6xl text-center">{t("sec.testimonials")}</h2>
