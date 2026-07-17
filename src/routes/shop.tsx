@@ -1,16 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Star, Search } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { SITE } from "@/lib/site";
-import poolImg from "@/assets/product-pool.jpg";
-import snookerImg from "@/assets/product-snooker.jpg";
-import caromImg from "@/assets/product-carom.jpg";
-import cuesImg from "@/assets/product-cues.jpg";
-import ballsImg from "@/assets/gallery-1.jpg";
-import lightImg from "@/assets/gallery-4.jpg";
-import chalkImg from "@/assets/gallery-3.jpg";
-import feltImg from "@/assets/gallery-2.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import fallbackImg from "@/assets/product-pool.jpg";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -22,40 +17,58 @@ export const Route = createFileRoute("/shop")({
   component: Shop,
 });
 
-const CATEGORIES = [
-  "All", "Pool Tables", "Snooker Tables", "Carom Tables", "Cues", "Cue Cases", "Balls", "Chalk", "Triangle Racks", "Table Covers", "Lighting", "Spare Parts",
-];
-
-type Product = { id: string; name: string; category: string; price: number; rating: number; img: string; badge?: string };
-
-const PRODUCTS: Product[] = [
-  { id: "regal", name: "Regal Pro Pool Table 8ft", category: "Pool Tables", price: 3200, rating: 4.9, img: poolImg, badge: "Bestseller" },
-  { id: "monarch", name: "Monarch Slate Pool 9ft", category: "Pool Tables", price: 4100, rating: 4.8, img: poolImg },
-  { id: "windsor", name: "Windsor Snooker 12ft", category: "Snooker Tables", price: 5800, rating: 5.0, img: snookerImg, badge: "New" },
-  { id: "oxford", name: "Oxford Snooker 10ft", category: "Snooker Tables", price: 4600, rating: 4.7, img: snookerImg },
-  { id: "heritage", name: "Carom Heritage", category: "Carom Tables", price: 2900, rating: 4.8, img: caromImg },
-  { id: "elite-cue", name: "Elite Cue Set + Case", category: "Cues", price: 220, rating: 4.9, img: cuesImg },
-  { id: "leather-case", name: "Leather Cue Case", category: "Cue Cases", price: 140, rating: 4.6, img: cuesImg },
-  { id: "aramith", name: "Aramith Premier Balls", category: "Balls", price: 190, rating: 5.0, img: ballsImg, badge: "Pro" },
-  { id: "chalk", name: "Master Chalk (12-pack)", category: "Chalk", price: 18, rating: 4.7, img: chalkImg },
-  { id: "rack", name: "Solid Wood Triangle Rack", category: "Triangle Racks", price: 45, rating: 4.5, img: chalkImg },
-  { id: "cover", name: "Premium Table Cover", category: "Table Covers", price: 120, rating: 4.6, img: feltImg },
-  { id: "light", name: "Brass Pendant Light 3-lamp", category: "Lighting", price: 480, rating: 4.9, img: lightImg, badge: "New" },
-  { id: "cushion", name: "Cushion Rubber Set", category: "Spare Parts", price: 210, rating: 4.4, img: feltImg },
-];
+type DBCategory = { id: string; slug: string; name: string };
+type DBProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  category_id: string | null;
+  price_cents: number;
+  image_url: string | null;
+  stock: number;
+  rating: number;
+  badge: string | null;
+};
 
 function Shop() {
-  const [cat, setCat] = useState("All");
+  const [cat, setCat] = useState<string>("All");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"featured" | "asc" | "desc" | "rating">("featured");
 
+  const { data: cats = [] } = useQuery<DBCategory[]>({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("id, slug, name").order("sort_order");
+      if (error) throw error;
+      return data as DBCategory[];
+    },
+  });
+
+  const { data: products = [], isLoading } = useQuery<DBProduct[]>({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, slug, name, category_id, price_cents, image_url, stock, rating, badge")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as DBProduct[];
+    },
+  });
+
   const items = useMemo(() => {
-    let list = PRODUCTS.filter((p) => (cat === "All" || p.category === cat) && p.name.toLowerCase().includes(q.toLowerCase()));
-    if (sort === "asc") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "desc") list = [...list].sort((a, b) => b.price - a.price);
-    if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    const activeCatId = cat === "All" ? null : cats.find((c) => c.slug === cat)?.id;
+    let list = products.filter(
+      (p) =>
+        (activeCatId === undefined || activeCatId === null || p.category_id === activeCatId) &&
+        p.name.toLowerCase().includes(q.toLowerCase()),
+    );
+    if (sort === "asc") list = [...list].sort((a, b) => a.price_cents - b.price_cents);
+    if (sort === "desc") list = [...list].sort((a, b) => b.price_cents - a.price_cents);
+    if (sort === "rating") list = [...list].sort((a, b) => Number(b.rating) - Number(a.rating));
     return list;
-  }, [cat, q, sort]);
+  }, [cat, q, sort, products, cats]);
 
   return (
     <PageShell>
@@ -85,43 +98,47 @@ function Shop() {
         </div>
 
         <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
-          {CATEGORIES.map((c) => (
+          {[{ slug: "All", name: "All" }, ...cats].map((c) => (
             <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={`shrink-0 px-4 py-2 text-xs uppercase tracking-widest border transition-colors ${
-                cat === c ? "border-[var(--gold)] text-[var(--ink)] bg-gold-gradient" : "hairline text-muted-foreground hover:text-gold hover:border-[var(--gold)]"
+              key={c.slug}
+              onClick={() => setCat(c.slug)}
+              className={`shrink-0 px-4 py-2 pill text-xs uppercase tracking-widest border transition-colors ${
+                cat === c.slug ? "border-[var(--gold)] text-[var(--ink)] bg-gold-gradient" : "hairline text-muted-foreground hover:text-gold hover:border-[var(--gold)]"
               }`}
             >
-              {c}
+              {c.name}
             </button>
           ))}
         </div>
 
+        {isLoading && <div className="mt-12 text-center text-muted-foreground">Loading products…</div>}
+
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((p) => (
-            <article key={p.id} className="group border hairline flex flex-col">
+            <article key={p.id} className="group border hairline rounded-3xl overflow-hidden flex flex-col bg-card">
               <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
-                <img src={p.img} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={p.image_url || fallbackImg} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 {p.badge && (
-                  <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 bg-gold-gradient text-[var(--ink)]">
+                  <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">
                     {p.badge}
                   </div>
                 )}
               </div>
               <div className="p-5 flex-1 flex flex-col">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{p.category}</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {cats.find((c) => c.id === p.category_id)?.name ?? "Product"}
+                </div>
                 <h3 className="mt-2 font-display text-xl">{p.name}</h3>
                 <div className="mt-2 flex items-center gap-2 text-xs text-gold">
-                  <Star className="w-3 h-3 fill-current" /> {p.rating.toFixed(1)}
+                  <Star className="w-3 h-3 fill-current" /> {Number(p.rating).toFixed(1)}
                 </div>
                 <div className="mt-auto pt-6 flex items-center justify-between">
-                  <div className="font-display text-2xl text-gold">${p.price.toLocaleString()}</div>
+                  <div className="font-display text-2xl">${(p.price_cents / 100).toLocaleString()}</div>
                   <a
                     href={SITE.waLink(`I'm interested in ${p.name}`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] uppercase tracking-widest px-4 py-2 border border-[var(--gold)] text-gold hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+                    className="text-[10px] uppercase tracking-widest px-4 py-2 pill border border-[var(--gold)] text-gold hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
                   >
                     Enquire
                   </a>
@@ -131,7 +148,7 @@ function Shop() {
           ))}
         </div>
 
-        {items.length === 0 && (
+        {!isLoading && items.length === 0 && (
           <div className="mt-24 text-center text-muted-foreground">No products match your filters.</div>
         )}
       </section>

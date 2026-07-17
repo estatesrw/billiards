@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, X, Globe } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Menu, X, Globe, User, LogOut } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { supabase } from "@/integrations/supabase/client";
 
 const links = [
   { to: "/", key: "nav.home" as const },
@@ -19,6 +20,21 @@ const links = [
 export function Nav() {
   const { t, lang, setLang } = useI18n();
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setEmail(session?.user?.email ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
 
   return (
     <header className="sticky top-4 z-40 px-4">
@@ -62,6 +78,20 @@ export function Nav() {
           >
             {t("cta.whatsapp")}
           </a>
+          {email ? (
+            <div className="hidden md:flex items-center gap-1">
+              <Link to="/admin" className="text-xs px-3 py-2 pill hover:bg-secondary flex items-center gap-1.5" title="Account">
+                <User className="w-3.5 h-3.5" /> Account
+              </Link>
+              <button onClick={signOut} title="Sign out" className="w-9 h-9 grid place-items-center pill hover:bg-secondary text-muted-foreground">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth" className="hidden md:inline-flex text-xs px-3 py-2 pill hover:bg-secondary items-center gap-1.5">
+              <User className="w-3.5 h-3.5" /> Sign in
+            </Link>
+          )}
           <button
             className="xl:hidden text-foreground w-10 h-10 grid place-items-center pill hover:bg-secondary"
             onClick={() => setOpen((o) => !o)}
@@ -87,6 +117,14 @@ export function Nav() {
                 {t(l.key)}
               </Link>
             ))}
+            {email ? (
+              <>
+                <Link to="/admin" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Account</Link>
+                <button onClick={() => { setOpen(false); signOut(); }} className="text-sm px-4 py-3 pill hover:bg-secondary text-left">Sign out</button>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Sign in</Link>
+            )}
             <button
               onClick={() => setLang(lang === "en" ? "rw" : "en")}
               className="text-xs uppercase tracking-widest text-gold text-left px-4 py-3 mt-2 border-t hairline"
