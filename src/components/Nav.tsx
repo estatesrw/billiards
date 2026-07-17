@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, X, Globe } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Menu, X, Globe, User, LogOut } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { supabase } from "@/integrations/supabase/client";
 
 const links = [
   { to: "/", key: "nav.home" as const },
@@ -19,6 +20,21 @@ const links = [
 export function Nav() {
   const { t, lang, setLang } = useI18n();
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setEmail(session?.user?.email ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
 
   return (
     <header className="sticky top-4 z-40 px-4">
