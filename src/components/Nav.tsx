@@ -21,25 +21,23 @@ export function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b hairline bg-background/80 backdrop-blur-md">
-      <div className="container-lux flex items-center justify-between h-20">
-        <Link to="/" className="flex items-center gap-3 group">
-          <span className="inline-block w-9 h-9 rounded-full border border-[var(--gold)] grid place-items-center text-gold font-display text-lg">
-            B
-          </span>
-          <span className="font-display text-lg tracking-wide leading-tight">
+    <header className="sticky top-4 z-40 px-4">
+      <div className="max-w-6xl mx-auto bg-background/85 backdrop-blur-xl pill shadow-pill border hairline flex items-center justify-between pl-5 pr-2 py-2">
+        <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+          <span className="inline-block w-9 h-9 pill bg-[var(--ink)] text-[var(--ivory)] grid place-items-center font-display text-sm">B</span>
+          <span className="hidden sm:block font-display text-sm tracking-wide leading-tight">
             <span className="block">B Trader</span>
-            <span className="block text-[10px] uppercase tracking-[0.3em] text-gold">Elite Billiards</span>
+            <span className="block text-[9px] uppercase tracking-[0.25em] text-gold">Elite Billiards</span>
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden xl:flex items-center gap-1">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors gold-underline"
-              activeProps={{ className: "text-gold" }}
+              className="text-xs px-3 py-2 pill text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              activeProps={{ className: "text-foreground bg-secondary" }}
               activeOptions={{ exact: l.to === "/" }}
             >
               {t(l.key)}
@@ -47,43 +45,43 @@ export function Nav() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setLang(lang === "en" ? "rw" : "en")}
-            className="hidden md:flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-gold transition-colors"
+            className="hidden md:flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground px-2"
             aria-label="Toggle language"
           >
-            <Globe className="w-4 h-4" />
-            {lang === "en" ? "EN / RW" : "RW / EN"}
+            <Globe className="w-3.5 h-3.5" />
+            {lang.toUpperCase()}
           </button>
           <a
             href={SITE.waLink()}
             target="_blank"
             rel="noreferrer"
-            className="hidden md:inline-block text-xs uppercase tracking-widest px-5 py-3 border border-[var(--gold)] text-gold hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+            className="hidden md:inline-flex items-center gap-2 text-xs px-4 py-2.5 pill bg-[var(--ink)] text-[var(--ivory)] hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
           >
             {t("cta.whatsapp")}
           </a>
           <button
-            className="lg:hidden text-foreground"
+            className="xl:hidden text-foreground w-10 h-10 grid place-items-center pill hover:bg-secondary"
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
           >
-            {open ? <X /> : <Menu />}
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="lg:hidden border-t hairline bg-background">
-          <div className="container-lux py-6 flex flex-col gap-4">
+        <div className="xl:hidden mt-2 max-w-6xl mx-auto bg-background border hairline rounded-3xl shadow-pill p-4">
+          <div className="flex flex-col gap-1">
             {links.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
                 onClick={() => setOpen(false)}
-                className="text-sm uppercase tracking-widest text-muted-foreground hover:text-gold"
-                activeProps={{ className: "text-gold" }}
+                className="text-sm px-4 py-3 pill hover:bg-secondary"
+                activeProps={{ className: "bg-secondary text-foreground" }}
                 activeOptions={{ exact: l.to === "/" }}
               >
                 {t(l.key)}
@@ -91,7 +89,7 @@ export function Nav() {
             ))}
             <button
               onClick={() => setLang(lang === "en" ? "rw" : "en")}
-              className="text-xs uppercase tracking-widest text-gold text-left"
+              className="text-xs uppercase tracking-widest text-gold text-left px-4 py-3 mt-2 border-t hairline"
             >
               <Globe className="w-4 h-4 inline mr-2" />
               {lang === "en" ? "Switch to Kinyarwanda" : "Switch to English"}

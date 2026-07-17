@@ -67,7 +67,7 @@ function Contact() {
           </div>
         </div>
 
-        <form onSubmit={submit} className="border hairline p-8 md:p-10 space-y-6 h-fit bg-[oklch(0.08_0_0)]">
+        <form onSubmit={submit} className="border hairline p-8 md:p-10 space-y-6 h-fit bg-cream-soft">
           <div>
             <div className="text-xs uppercase tracking-[0.3em] text-gold">Send a message</div>
             <h2 className="mt-3 font-display text-3xl">We'd love to hear from you.</h2>

@@ -5,7 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * B Trader Elite Billiards — luxury black / gold / white design system.
+ * B Trader Elite Billiards — Atomiq-inspired minimal design system.
+ * Soft cream canvas, dark ink, luxury gold accent, geometric display type.
  * Do NOT hardcode colors in components; use these semantic tokens.
  */
 
@@ -54,61 +55,63 @@
   --color-gold-soft: var(--gold-soft);
   --color-ink: var(--ink);
   --color-ivory: var(--ivory);
-  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Caveat", ui-serif, cursive;
 }
 
 :root {
-  --radius: 0.25rem;
-  /* Luxury dark canvas by default */
-  --background: oklch(0.06 0 0);           /* near-black #060606 */
-  --foreground: oklch(0.97 0.005 90);      /* ivory */
-  --ink: oklch(0.06 0 0);
-  --ivory: oklch(0.97 0.005 90);
-  --gold: oklch(0.76 0.13 82);             /* ~#C9A24A */
-  --gold-soft: oklch(0.62 0.11 82);
+  --radius: 1.25rem;
+  /* Atomiq-inspired soft cream canvas */
+  --background: oklch(0.965 0.005 85);     /* warm off-white #F2F1EC */
+  --foreground: oklch(0.18 0.005 60);      /* deep ink */
+  --ink: oklch(0.14 0.005 60);
+  --ivory: oklch(0.98 0.004 85);
+  --gold: oklch(0.72 0.13 82);             /* ~#C9A24A */
+  --gold-soft: oklch(0.82 0.09 82);
+  --cream-soft: oklch(0.94 0.008 85);      /* subtle section tint */
 
-  --card: oklch(0.1 0 0);
-  --card-foreground: oklch(0.97 0.005 90);
-  --popover: oklch(0.09 0 0);
-  --popover-foreground: oklch(0.97 0.005 90);
-  --primary: oklch(0.76 0.13 82);          /* gold */
-  --primary-foreground: oklch(0.06 0 0);
-  --secondary: oklch(0.14 0 0);
-  --secondary-foreground: oklch(0.97 0.005 90);
-  --muted: oklch(0.14 0 0);
-  --muted-foreground: oklch(0.68 0.01 90);
-  --accent: oklch(0.76 0.13 82);
-  --accent-foreground: oklch(0.06 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.005 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.005 60);
+  --primary: oklch(0.14 0.005 60);         /* dark pill primary */
+  --primary-foreground: oklch(0.98 0.004 85);
+  --secondary: oklch(0.93 0.008 85);
+  --secondary-foreground: oklch(0.18 0.005 60);
+  --muted: oklch(0.93 0.008 85);
+  --muted-foreground: oklch(0.42 0.008 60);
+  --accent: oklch(0.72 0.13 82);
+  --accent-foreground: oklch(0.14 0.005 60);
   --destructive: oklch(0.6 0.22 25);
-  --destructive-foreground: oklch(0.97 0.005 90);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.76 0.13 82);
+  --destructive-foreground: oklch(0.98 0.004 85);
+  --border: oklch(0.14 0.005 60 / 10%);
+  --input: oklch(0.14 0.005 60 / 12%);
+  --ring: oklch(0.72 0.13 82);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.97 0.005 90);
-  --sidebar-primary: oklch(0.76 0.13 82);
-  --sidebar-primary-foreground: oklch(0.06 0 0);
-  --sidebar-accent: oklch(0.14 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0.005 90);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.76 0.13 82);
+  --sidebar: oklch(0.98 0.004 85);
+  --sidebar-foreground: oklch(0.18 0.005 60);
+  --sidebar-primary: oklch(0.72 0.13 82);
+  --sidebar-primary-foreground: oklch(0.14 0.005 60);
+  --sidebar-accent: oklch(0.93 0.008 85);
+  --sidebar-accent-foreground: oklch(0.18 0.005 60);
+  --sidebar-border: oklch(0.14 0.005 60 / 10%);
+  --sidebar-ring: oklch(0.72 0.13 82);
 
   /* Gradients & shadows */
   --gradient-gold: linear-gradient(135deg, oklch(0.82 0.14 85), oklch(0.62 0.11 78));
-  --gradient-hero: linear-gradient(180deg, oklch(0.06 0 0 / 0.2) 0%, oklch(0.06 0 0 / 0.85) 100%);
-  --shadow-gold: 0 20px 60px -20px oklch(0.76 0.13 82 / 0.35);
-  --shadow-luxe: 0 30px 80px -30px oklch(0 0 0 / 0.9);
+  --gradient-hero: linear-gradient(180deg, oklch(0.14 0.005 60 / 0.05) 0%, oklch(0.14 0.005 60 / 0.55) 100%);
+  --shadow-gold: 0 20px 60px -20px oklch(0.72 0.13 82 / 0.35);
+  --shadow-luxe: 0 30px 80px -30px oklch(0.14 0.005 60 / 0.25);
+  --shadow-pill: 0 12px 40px -12px oklch(0.14 0.005 60 / 0.18);
 }
 
 .dark {
-  /* Site is dark by default; .dark mirrors :root for consistency */
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 @layer base {
@@ -175,7 +178,23 @@
 }
 
 @utility hairline {
-  border-color: oklch(1 0 0 / 0.08);
+  border-color: oklch(0.14 0.005 60 / 0.08);
+}
+
+@utility bg-cream-soft {
+  background-color: var(--cream-soft);
+}
+
+@utility font-script {
+  font-family: var(--font-script);
+}
+
+@utility pill {
+  border-radius: 9999px;
+}
+
+@utility shadow-pill {
+  box-shadow: var(--shadow-pill);
 }
 
 @keyframes lux-fade-up {

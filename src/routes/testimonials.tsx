@@ -27,7 +27,7 @@ function Testimonials() {
       <PageHeader eyebrow="Reviews" title="Voices from the room." sub="A few words from clients who trusted us with their spaces." />
       <section className="container-lux py-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {REVIEWS.map((r) => (
-          <figure key={r.n} className="border hairline p-8 bg-[oklch(0.08_0_0)]">
+          <figure key={r.n} className="border hairline p-8 bg-cream-soft">
             <div className="flex gap-1 text-gold">
               {Array.from({ length: r.stars }).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
             </div>
