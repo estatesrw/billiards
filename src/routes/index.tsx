@@ -30,45 +30,56 @@ function Home() {
       </div>
 
       {/* Hero */}
-      <section className="relative min-h-[92vh] flex items-end overflow-hidden">
-        <img
-          src={heroImg}
-          alt="Luxury billiards table in a dim-lit private lounge"
-          width={1920}
-          height={1280}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,var(--background)_95%)]" />
-
-        <div className="container-lux relative z-10 py-24 md:py-32">
-          <div className="max-w-3xl animate-lux-in">
-            <div className="text-xs uppercase tracking-[0.4em] text-gold">{t("hero.eyebrow")}</div>
-            <h1 className="mt-6 font-display text-[3rem] md:text-[6rem] leading-[0.9]">
-              {t("hero.title.a")}
+      <section className="relative pt-16 md:pt-24 pb-12 overflow-hidden">
+        <div className="container-lux relative z-10">
+          <div className="max-w-5xl animate-lux-in">
+            <div className="flex items-center gap-4">
+              <span className="font-script text-gold text-4xl md:text-5xl -rotate-6 inline-block">hello,</span>
+              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">{t("hero.eyebrow")}</span>
+            </div>
+            <h1 className="mt-4 font-display text-[3rem] md:text-[7rem] leading-[0.95] tracking-tight">
+              {t("hero.title.a")}<span className="text-gold">.</span>
               <br />
-              <span className="italic text-gold">{t("hero.title.b")}</span>
+              <span className="text-muted-foreground">{t("hero.title.b")}</span>
             </h1>
-            <p className="mt-8 max-w-xl text-lg text-muted-foreground">{t("hero.sub")}</p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                to="/shop"
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-gold-gradient text-[var(--ink)] uppercase text-xs tracking-[0.3em] font-medium hover:shadow-[var(--shadow-gold)] transition-all"
-              >
-                {t("cta.shop")}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-3 px-8 py-4 border border-[var(--gold)] text-gold uppercase text-xs tracking-[0.3em] hover:bg-[var(--gold)] hover:text-[var(--ink)] transition-all"
-              >
-                {t("cta.contact")}
-              </Link>
+            <div className="mt-10 grid md:grid-cols-[1fr_auto] gap-8 items-end">
+              <p className="max-w-xl text-lg text-muted-foreground">{t("hero.sub")}</p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/shop"
+                  className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+                >
+                  {t("cta.shop")}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
+                >
+                  {t("cta.contact")}
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Hero image plate */}
+          <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/8] shadow-luxe">
+            <img
+              src={heroImg}
+              alt="Luxury billiards table in a dim-lit private lounge"
+              width={1920}
+              height={1280}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
+            <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 text-[var(--ivory)]">
+              <div className="text-[10px] uppercase tracking-[0.4em] text-gold">Signature</div>
+              <div className="font-display text-2xl md:text-4xl mt-2">Regal Pro — 8ft slate</div>
             </div>
           </div>
 
           {/* Stat strip */}
-          <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl border-t hairline pt-10">
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
             {[
               { k: "12+", v: "Years of craft" },
               { k: "800+", v: "Tables installed" },
@@ -76,7 +87,7 @@ function Home() {
               { k: "2 yr", v: "Warranty" },
             ].map((s) => (
               <div key={s.k}>
-                <div className="font-display text-4xl text-gold">{s.k}</div>
+                <div className="font-display text-5xl">{s.k}</div>
                 <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.v}</div>
               </div>
             ))}
