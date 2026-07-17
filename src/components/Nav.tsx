@@ -78,6 +78,20 @@ export function Nav() {
           >
             {t("cta.whatsapp")}
           </a>
+          {email ? (
+            <div className="hidden md:flex items-center gap-1">
+              <Link to="/admin" className="text-xs px-3 py-2 pill hover:bg-secondary flex items-center gap-1.5" title="Account">
+                <User className="w-3.5 h-3.5" /> Account
+              </Link>
+              <button onClick={signOut} title="Sign out" className="w-9 h-9 grid place-items-center pill hover:bg-secondary text-muted-foreground">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth" className="hidden md:inline-flex text-xs px-3 py-2 pill hover:bg-secondary items-center gap-1.5">
+              <User className="w-3.5 h-3.5" /> Sign in
+            </Link>
+          )}
           <button
             className="xl:hidden text-foreground w-10 h-10 grid place-items-center pill hover:bg-secondary"
             onClick={() => setOpen((o) => !o)}
@@ -103,6 +117,14 @@ export function Nav() {
                 {t(l.key)}
               </Link>
             ))}
+            {email ? (
+              <>
+                <Link to="/admin" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Account</Link>
+                <button onClick={() => { setOpen(false); signOut(); }} className="text-sm px-4 py-3 pill hover:bg-secondary text-left">Sign out</button>
+              </>
+            ) : (
+              <Link to="/auth" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Sign in</Link>
+            )}
             <button
               onClick={() => setLang(lang === "en" ? "rw" : "en")}
               className="text-xs uppercase tracking-widest text-gold text-left px-4 py-3 mt-2 border-t hairline"
