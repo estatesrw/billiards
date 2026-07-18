@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
-import gallery from "@/assets/gallery-4.jpg";
-import cues from "@/assets/product-cues.jpg";
+import { gallery4 as gallery, productCues as cues } from "@/lib/images";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

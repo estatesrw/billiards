@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
-import fallbackImg from "@/assets/product-pool.jpg";
+import { fallbackProduct as fallbackImg } from "@/lib/images";
 
 export function CartDrawer() {
   const { items, open, setOpen, setQty, remove, subtotal, count } = useCart();

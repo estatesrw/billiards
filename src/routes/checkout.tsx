@@ -5,7 +5,7 @@ import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { toast } from "sonner";
-import fallbackImg from "@/assets/product-pool.jpg";
+import { fallbackProduct as fallbackImg } from "@/lib/images";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — B Trader Elite Billiards" }] }),

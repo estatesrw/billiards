@@ -3,14 +3,7 @@ import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
-import heroImg from "@/assets/hero-table.jpg";
-import productPool from "@/assets/product-pool.jpg";
-import productSnooker from "@/assets/product-snooker.jpg";
-import productCarom from "@/assets/product-carom.jpg";
-import productCues from "@/assets/product-cues.jpg";
-import projectHotel from "@/assets/project-hotel.jpg";
-import projectBar from "@/assets/project-bar.jpg";
-import projectClub from "@/assets/project-club.jpg";
+import { heroTable as heroImg, productPool, productSnooker, productCarom, productCues, projectHotel, projectBar, projectClub } from "@/lib/images";
 
 export const Route = createFileRoute("/")({
   component: Home,

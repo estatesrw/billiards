@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, Package, ShieldCheck, Trash2 } from "lucide-react";
-import fallbackImg from "@/assets/product-pool.jpg";
+import { fallbackProduct as fallbackImg } from "@/lib/images";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Account — B Trader Elite Billiards" }] }),
