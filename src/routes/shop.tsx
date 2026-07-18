@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Star, Search } from "lucide-react";
+import { Star, Search, ShoppingBag, Heart } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
+import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import fallbackImg from "@/assets/product-pool.jpg";
 
 export const Route = createFileRoute("/shop")({
@@ -34,6 +38,8 @@ function Shop() {
   const [cat, setCat] = useState<string>("All");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"featured" | "asc" | "desc" | "rating">("featured");
+  const { add, setOpen: setCartOpen } = useCart();
+  const { ids: wishIds, toggle: toggleWish } = useWishlist();
 
   const { data: cats = [] } = useQuery<DBCategory[]>({
     queryKey: ["categories"],
@@ -134,15 +140,27 @@ function Shop() {
                 </div>
                 <div className="mt-auto pt-6 flex items-center justify-between">
                   <div className="font-display text-2xl">${(p.price_cents / 100).toLocaleString()}</div>
-                  <a
-                    href={SITE.waLink(`I'm interested in ${p.name}`)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[10px] uppercase tracking-widest px-4 py-2 pill border border-[var(--gold)] text-gold hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
-                  >
-                    Enquire
-                  </a>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => toggleWish({ id: p.id, slug: p.slug, name: p.name })}
+                      className={`w-9 h-9 grid place-items-center pill border transition-colors ${wishIds.has(p.id) ? "border-[var(--gold)] text-gold bg-gold-gradient/10" : "hairline text-muted-foreground hover:text-gold hover:border-[var(--gold)]"}`}
+                      aria-label="Toggle wishlist"
+                    >
+                      <Heart className={`w-3.5 h-3.5 ${wishIds.has(p.id) ? "fill-current" : ""}`} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        add({ id: p.id, slug: p.slug, name: p.name, price_cents: p.price_cents, image_url: p.image_url });
+                        toast.success(`${p.name} added to cart`);
+                        setCartOpen(true);
+                      }}
+                      className="text-[10px] uppercase tracking-widest px-3 py-2 pill bg-[var(--ink)] text-[var(--ivory)] hover:bg-gold-gradient hover:text-[var(--ink)] transition-all flex items-center gap-1.5"
+                    >
+                      <ShoppingBag className="w-3 h-3" /> Add
+                    </button>
+                  </div>
                 </div>
+                <Link to="/shop/$slug" params={{ slug: p.slug }} className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-gold">View details →</Link>
               </div>
             </article>
           ))}
