@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Globe, User, LogOut } from "lucide-react";
+import { Menu, X, Globe, User, LogOut, ShoppingBag, Heart } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
 
 const links = [
   { to: "/", key: "nav.home" as const },
@@ -22,6 +23,7 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { count, setOpen: setCartOpen } = useCart();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -63,6 +65,18 @@ export function Nav() {
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setCartOpen(true)}
+            className="relative w-9 h-9 grid place-items-center pill hover:bg-secondary"
+            aria-label="Open cart"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {count > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gold-gradient text-[var(--ink)] text-[10px] font-semibold grid place-items-center">
+                {count}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setLang(lang === "en" ? "rw" : "en")}
             className="hidden md:flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground px-2"
             aria-label="Toggle language"
@@ -80,8 +94,11 @@ export function Nav() {
           </a>
           {email ? (
             <div className="hidden md:flex items-center gap-1">
-              <Link to="/admin" className="text-xs px-3 py-2 pill hover:bg-secondary flex items-center gap-1.5" title="Account">
+              <Link to="/account" className="text-xs px-3 py-2 pill hover:bg-secondary flex items-center gap-1.5" title="Account">
                 <User className="w-3.5 h-3.5" /> Account
+              </Link>
+              <Link to="/account" hash="wishlist" className="w-9 h-9 grid place-items-center pill hover:bg-secondary text-muted-foreground" title="Wishlist">
+                <Heart className="w-4 h-4" />
               </Link>
               <button onClick={signOut} title="Sign out" className="w-9 h-9 grid place-items-center pill hover:bg-secondary text-muted-foreground">
                 <LogOut className="w-4 h-4" />
@@ -119,7 +136,7 @@ export function Nav() {
             ))}
             {email ? (
               <>
-                <Link to="/admin" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Account</Link>
+                <Link to="/account" onClick={() => setOpen(false)} className="text-sm px-4 py-3 pill hover:bg-secondary">Account</Link>
                 <button onClick={() => { setOpen(false); signOut(); }} className="text-sm px-4 py-3 pill hover:bg-secondary text-left">Sign out</button>
               </>
             ) : (
