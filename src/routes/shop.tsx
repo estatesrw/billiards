@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Star, Search, ShoppingBag, Heart } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
-import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
