@@ -1,12 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
-import hotel from "@/assets/project-hotel.jpg";
-import bar from "@/assets/project-bar.jpg";
-import club from "@/assets/project-club.jpg";
-import g4 from "@/assets/gallery-4.jpg";
-import pool from "@/assets/product-pool.jpg";
-import snooker from "@/assets/product-snooker.jpg";
+import { projectHotel as hotel, projectBar as bar, projectClub as club, gallery4 as g4, productPool as pool, productSnooker as snooker } from "@/lib/images";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({

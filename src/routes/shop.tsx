@@ -8,7 +8,7 @@ import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import fallbackImg from "@/assets/product-pool.jpg";
+import { fallbackProduct as fallbackImg } from "@/lib/images";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({

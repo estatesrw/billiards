@@ -1,15 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, PageHeader } from "@/components/PageShell";
-import g1 from "@/assets/gallery-1.jpg";
-import g2 from "@/assets/gallery-2.jpg";
-import g3 from "@/assets/gallery-3.jpg";
-import g4 from "@/assets/gallery-4.jpg";
-import p1 from "@/assets/project-hotel.jpg";
-import p2 from "@/assets/project-bar.jpg";
-import p3 from "@/assets/project-club.jpg";
-import prod1 from "@/assets/product-pool.jpg";
-import prod2 from "@/assets/product-snooker.jpg";
-import prod3 from "@/assets/product-carom.jpg";
+import { gallery1 as g1, gallery2 as g2, gallery3 as g3, gallery4 as g4, projectHotel as p1, projectBar as p2, projectClub as p3, productPool as prod1, productSnooker as prod2, productCarom as prod3 } from "@/lib/images";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({

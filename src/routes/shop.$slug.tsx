@@ -8,7 +8,7 @@ import { SITE } from "@/lib/site";
 import { toast } from "sonner";
 import { Heart, ShoppingBag, Star, ChevronLeft } from "lucide-react";
 import { useState } from "react";
-import fallbackImg from "@/assets/product-pool.jpg";
+import { fallbackProduct as fallbackImg } from "@/lib/images";
 
 export const Route = createFileRoute("/shop/$slug")({
   head: ({ params }) => ({
