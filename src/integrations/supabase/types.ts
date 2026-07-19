@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      gallery_items: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+          is_published: boolean
+          sort_order: number
+          span: string | null
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          is_published?: boolean
+          sort_order?: number
+          span?: string | null
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_published?: boolean
+          sort_order?: number
+          span?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -216,6 +249,48 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          icon: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          price_cents: number
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          price_cents?: number
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          price_cents?: number
+          sort_order?: number
+          title?: string
           updated_at?: string
         }
         Relationships: []

@@ -13,8 +13,6 @@ const links = [
   { to: "/projects", key: "nav.projects" as const },
   { to: "/gallery", key: "nav.gallery" as const },
   { to: "/about", key: "nav.about" as const },
-  { to: "/testimonials", key: "nav.testimonials" as const },
-  { to: "/faq", key: "nav.faq" as const },
   { to: "/contact", key: "nav.contact" as const },
 ];
 

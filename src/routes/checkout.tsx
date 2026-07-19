@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { useCart } from "@/lib/cart";
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/checkout")({
 
 function Checkout() {
   const { items, subtotal, clear } = useCart();
-  const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", address: "", city: "Kigali", notes: "" });
 
@@ -27,6 +26,8 @@ function Checkout() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (items.length === 0) return toast.error("Your cart is empty.");
+    // Open a placeholder tab synchronously so popup blockers allow it after await.
+    const waWindow = window.open("about:blank", "_blank");
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
@@ -52,11 +53,13 @@ function Checkout() {
 
       const lines = items.map((i) => `• ${i.name} × ${i.quantity} — $${((i.price_cents * i.quantity) / 100).toLocaleString()}`).join("\n");
       const msg = `New order request #${order.id.slice(0, 8)}\n\nName: ${form.full_name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}\n\n${lines}\n\nSubtotal: $${(subtotal / 100).toLocaleString()}\n\nNotes: ${form.notes || "—"}`;
+      const wa = SITE.waLink(msg);
       clear();
       toast.success("Order sent. Continuing to WhatsApp…");
-      window.open(SITE.waLink(msg), "_blank");
-      navigate({ to: "/account" });
+      if (waWindow) waWindow.location.href = wa;
+      else window.location.href = wa;
     } catch (err) {
+      if (waWindow) waWindow.close();
       toast.error(err instanceof Error ? err.message : "Could not place order.");
     } finally {
       setBusy(false);
