@@ -27,6 +27,20 @@ type Product = {
   is_published: boolean;
 };
 
+type Service = {
+  id: string; title: string; description: string | null;
+  price_cents: number; currency: string; image_url: string | null;
+  icon: string | null; sort_order: number; is_published: boolean;
+};
+type GalleryItem = {
+  id: string; image_url: string; caption: string | null;
+  span: string | null; sort_order: number; is_published: boolean;
+};
+type Order = {
+  id: string; full_name: string; phone: string; city: string | null;
+  subtotal_cents: number; status: string; created_at: string;
+};
+
 const EMPTY: Omit<Product, "id"> = {
   slug: "",
   name: "",
@@ -41,10 +55,23 @@ const EMPTY: Omit<Product, "id"> = {
   is_published: true,
 };
 
+const EMPTY_SERVICE: Omit<Service, "id"> = {
+  title: "", description: "", price_cents: 0, currency: "USD",
+  image_url: "", icon: "Sparkles", sort_order: 0, is_published: true,
+};
+const EMPTY_GALLERY: Omit<GalleryItem, "id"> = {
+  image_url: "", caption: "", span: "", sort_order: 0, is_published: true,
+};
+
+type Tab = "products" | "services" | "gallery" | "orders";
+
 function Admin() {
   const qc = useQueryClient();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [tab, setTab] = useState<Tab>("products");
   const [draft, setDraft] = useState<Omit<Product, "id"> | Product>(EMPTY);
+  const [svcDraft, setSvcDraft] = useState<Omit<Service, "id"> | Service>(EMPTY_SERVICE);
+  const [galDraft, setGalDraft] = useState<Omit<GalleryItem, "id"> | GalleryItem>(EMPTY_GALLERY);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -79,6 +106,36 @@ function Admin() {
     },
   });
 
+  const { data: services = [] } = useQuery<Service[]>({
+    queryKey: ["admin", "services"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("services").select("*").order("sort_order");
+      if (error) throw error;
+      return data as Service[];
+    },
+  });
+
+  const { data: gallery = [] } = useQuery<GalleryItem[]>({
+    queryKey: ["admin", "gallery"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("gallery_items").select("*").order("sort_order");
+      if (error) throw error;
+      return data as GalleryItem[];
+    },
+  });
+
+  const { data: orders = [] } = useQuery<Order[]>({
+    queryKey: ["admin", "orders"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("id, full_name, phone, city, subtotal_cents, status, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Order[];
+    },
+  });
+
   const upsert = useMutation({
     mutationFn: async (p: Omit<Product, "id"> | Product) => {
       const payload = { ...p, badge: p.badge || null, description: p.description || null, image_url: p.image_url || null };
@@ -109,6 +166,54 @@ function Admin() {
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       qc.invalidateQueries({ queryKey: ["products"] });
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const upsertSvc = useMutation({
+    mutationFn: async (s: Omit<Service, "id"> | Service) => {
+      const payload = { ...s, description: s.description || null, image_url: s.image_url || null, icon: s.icon || null };
+      if ("id" in s && s.id) {
+        const { error } = await supabase.from("services").update(payload).eq("id", s.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("services").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { toast.success("Service saved."); setSvcDraft(EMPTY_SERVICE); qc.invalidateQueries({ queryKey: ["admin", "services"] }); qc.invalidateQueries({ queryKey: ["services"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delSvc = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("services").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); qc.invalidateQueries({ queryKey: ["admin", "services"] }); qc.invalidateQueries({ queryKey: ["services"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const upsertGal = useMutation({
+    mutationFn: async (g: Omit<GalleryItem, "id"> | GalleryItem) => {
+      const payload = { ...g, caption: g.caption || null, span: g.span || null };
+      if ("id" in g && g.id) {
+        const { error } = await supabase.from("gallery_items").update(payload).eq("id", g.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("gallery_items").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { toast.success("Gallery item saved."); setGalDraft(EMPTY_GALLERY); qc.invalidateQueries({ queryKey: ["admin", "gallery"] }); qc.invalidateQueries({ queryKey: ["gallery"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delGal = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("gallery_items").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); qc.invalidateQueries({ queryKey: ["admin", "gallery"] }); qc.invalidateQueries({ queryKey: ["gallery"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const setOrderStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { toast.success("Order updated."); qc.invalidateQueries({ queryKey: ["admin", "orders"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -150,7 +255,16 @@ function Admin() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Admin" title="Product manager" sub="Create, edit and remove shop items." />
+      <PageHeader eyebrow="Admin" title="Content manager" sub="Manage products, services, gallery and orders." />
+      <section className="container-lux pb-6">
+        <div className="flex flex-wrap gap-2">
+          {(["products","services","gallery","orders"] as Tab[]).map((k) => (
+            <button key={k} onClick={() => setTab(k)} className={`px-4 py-2 pill text-xs uppercase tracking-widest ${tab===k?"bg-[var(--ink)] text-[var(--ivory)]":"border hairline hover:bg-secondary"}`}>{k}</button>
+          ))}
+        </div>
+      </section>
+
+      {tab === "products" && (
       <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
         {/* Editor */}
         <div className="border hairline rounded-3xl bg-card p-6">
@@ -240,6 +354,115 @@ function Admin() {
           )}
         </div>
       </section>
+      )}
+
+      {tab === "services" && (
+        <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
+          <div className="border hairline rounded-3xl bg-card p-6">
+            <div className="font-display text-xl">{"id" in svcDraft && svcDraft.id ? "Edit service" : "New service"}</div>
+            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertSvc.mutate(svcDraft); }}>
+              <Field label="Title"><input required value={svcDraft.title} onChange={(e) => setSvcDraft({ ...svcDraft, title: e.target.value })} className={inp} /></Field>
+              <Field label="Description"><textarea rows={3} value={svcDraft.description ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, description: e.target.value })} className={inp} /></Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Price (USD)"><input type="number" min={0} step="0.01" value={svcDraft.price_cents / 100} onChange={(e) => setSvcDraft({ ...svcDraft, price_cents: Math.round(Number(e.target.value) * 100) })} className={inp} /></Field>
+                <Field label="Sort order"><input type="number" value={svcDraft.sort_order} onChange={(e) => setSvcDraft({ ...svcDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
+              </div>
+              <Field label="Image URL"><input value={svcDraft.image_url ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <Field label="Icon (Wrench, Truck, Scissors, Sparkles, Hammer, Shield, Trophy, Star)"><input value={svcDraft.icon ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, icon: e.target.value })} className={inp} /></Field>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={svcDraft.is_published} onChange={(e) => setSvcDraft({ ...svcDraft, is_published: e.target.checked })} /> Published</label>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" disabled={upsertSvc.isPending} className="inline-flex items-center gap-2 px-5 py-3 pill bg-[var(--ink)] text-[var(--ivory)] text-xs uppercase tracking-widest hover:bg-gold-gradient hover:text-[var(--ink)] disabled:opacity-60"><Save className="w-4 h-4" /> {"id" in svcDraft && svcDraft.id ? "Update" : "Create"}</button>
+                {"id" in svcDraft && svcDraft.id && <button type="button" onClick={() => setSvcDraft(EMPTY_SERVICE)} className="px-5 py-3 pill border hairline text-xs uppercase tracking-widest hover:bg-secondary">Cancel</button>}
+              </div>
+            </form>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">{services.length} services</div>
+              <button onClick={() => setSvcDraft(EMPTY_SERVICE)} className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold hover:underline"><Plus className="w-3 h-3" /> New</button>
+            </div>
+            <div className="grid gap-3">
+              {services.map((s) => (
+                <div key={s.id} className="flex items-center gap-4 border hairline rounded-2xl bg-card p-3">
+                  <div className="w-16 h-16 rounded-xl bg-secondary overflow-hidden shrink-0">
+                    {s.image_url && <img src={s.image_url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display text-lg truncate">{s.title}</div>
+                    <div className="text-xs text-muted-foreground">${(s.price_cents / 100).toLocaleString()} · order {s.sort_order} · {s.is_published ? "live" : "hidden"}</div>
+                  </div>
+                  <button onClick={() => setSvcDraft(s)} className="px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
+                  <button onClick={() => { if (confirm("Delete this service?")) delSvc.mutate(s.id); }} className="w-9 h-9 grid place-items-center pill border hairline hover:bg-destructive hover:text-[var(--ivory)] hover:border-transparent"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {tab === "gallery" && (
+        <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
+          <div className="border hairline rounded-3xl bg-card p-6">
+            <div className="font-display text-xl">{"id" in galDraft && galDraft.id ? "Edit item" : "New gallery item"}</div>
+            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertGal.mutate(galDraft); }}>
+              <Field label="Image URL"><input required value={galDraft.image_url} onChange={(e) => setGalDraft({ ...galDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <Field label="Caption"><input value={galDraft.caption ?? ""} onChange={(e) => setGalDraft({ ...galDraft, caption: e.target.value })} className={inp} /></Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Grid span"><input value={galDraft.span ?? ""} onChange={(e) => setGalDraft({ ...galDraft, span: e.target.value })} className={inp} placeholder="row-span-2 or col-span-2" /></Field>
+                <Field label="Sort order"><input type="number" value={galDraft.sort_order} onChange={(e) => setGalDraft({ ...galDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
+              </div>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={galDraft.is_published} onChange={(e) => setGalDraft({ ...galDraft, is_published: e.target.checked })} /> Published</label>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" disabled={upsertGal.isPending} className="inline-flex items-center gap-2 px-5 py-3 pill bg-[var(--ink)] text-[var(--ivory)] text-xs uppercase tracking-widest hover:bg-gold-gradient hover:text-[var(--ink)] disabled:opacity-60"><Save className="w-4 h-4" /> {"id" in galDraft && galDraft.id ? "Update" : "Create"}</button>
+                {"id" in galDraft && galDraft.id && <button type="button" onClick={() => setGalDraft(EMPTY_GALLERY)} className="px-5 py-3 pill border hairline text-xs uppercase tracking-widest hover:bg-secondary">Cancel</button>}
+              </div>
+            </form>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">{gallery.length} items</div>
+              <button onClick={() => setGalDraft(EMPTY_GALLERY)} className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold hover:underline"><Plus className="w-3 h-3" /> New</button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {gallery.map((g) => (
+                <div key={g.id} className="border hairline rounded-2xl bg-card p-3">
+                  <div className="aspect-video rounded-xl bg-secondary overflow-hidden">
+                    {g.image_url && <img src={g.image_url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="mt-2 text-sm truncate">{g.caption || "(no caption)"}</div>
+                  <div className="text-xs text-muted-foreground">order {g.sort_order} · {g.is_published ? "live" : "hidden"}</div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => setGalDraft(g)} className="flex-1 px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
+                    <button onClick={() => { if (confirm("Delete this item?")) delGal.mutate(g.id); }} className="w-9 h-9 grid place-items-center pill border hairline hover:bg-destructive hover:text-[var(--ivory)] hover:border-transparent"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {tab === "orders" && (
+        <section className="container-lux pb-24">
+          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-4">{orders.length} orders</div>
+          <div className="grid gap-3">
+            {orders.map((o) => (
+              <div key={o.id} className="flex flex-wrap items-center gap-4 border hairline rounded-2xl bg-card p-4">
+                <div className="flex-1 min-w-[220px]">
+                  <div className="font-display text-lg">{o.full_name || "—"}</div>
+                  <div className="text-xs text-muted-foreground">{o.phone} · {o.city} · {new Date(o.created_at).toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground">#{o.id.slice(0, 8)}</div>
+                </div>
+                <div className="font-display text-xl">${(o.subtotal_cents / 100).toLocaleString()}</div>
+                <select value={o.status} onChange={(e) => setOrderStatus.mutate({ id: o.id, status: e.target.value })} className={inp + " w-auto"}>
+                  {["pending","confirmed","paid","shipped","delivered","cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            ))}
+            {orders.length === 0 && <div className="text-muted-foreground">No orders yet.</div>}
+          </div>
+        </section>
+      )}
     </PageShell>
   );
 }
