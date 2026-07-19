@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
@@ -237,26 +238,28 @@ function Home() {
           <div className="text-xs uppercase tracking-[0.4em] text-gold text-center">05 — Voices</div>
           <h2 className="mt-4 font-display text-4xl md:text-6xl text-center">{t("sec.testimonials")}</h2>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            {[
-              { q: "The most professional installation team I've worked with. The table is a work of art.", n: "Jean Bosco", r: "Owner, Amber Bar" },
-              { q: "From sourcing to setup, seamless. Our members constantly compliment the room.", n: "Aline U.", r: "Manager, Meridian Club" },
-              { q: "Delivered on time, on budget — and refelted our old table like new.", n: "Patrick M.", r: "Kigali Grand Hotel" },
-            ].map((t) => (
-              <figure key={t.n} className="border hairline p-8 bg-background">
+          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {REVIEWS.map((r) => (
+              <figure key={r.n} className="border hairline p-8 bg-background">
                 <div className="flex gap-1 text-gold">
                   {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                 </div>
-                <blockquote className="mt-6 font-display text-2xl leading-snug">"{t.q}"</blockquote>
-                <figcaption className="mt-6 text-sm">
-                  <div className="text-foreground">{t.n}</div>
-                  <div className="text-muted-foreground">{t.r}</div>
+                <blockquote className="mt-6 font-display text-xl leading-snug">"{r.q}"</blockquote>
+                <figcaption className="mt-6 flex items-center gap-3 text-sm">
+                  <div className="w-10 h-10 rounded-full bg-gold-gradient grid place-items-center text-[var(--ink)] font-display">{r.n.charAt(0)}</div>
+                  <div>
+                    <div className="text-foreground">{r.n}</div>
+                    <div className="text-muted-foreground">{r.r}</div>
+                  </div>
                 </figcaption>
               </figure>
             ))}
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* CTA banner */}
       <section className="py-24">
@@ -286,5 +289,71 @@ function Home() {
         </div>
       </section>
     </PageShell>
+  );
+}
+
+const REVIEWS = [
+  { q: "The most professional installation team I've worked with. The table is a work of art.", n: "Jean Bosco", r: "Owner, Amber Bar" },
+  { q: "From sourcing to setup, seamless. Our members compliment the room every week.", n: "Aline U.", r: "Manager, Meridian Club" },
+  { q: "Delivered on time, on budget — and refelted our old table like new.", n: "Patrick M.", r: "Kigali Grand Hotel" },
+  { q: "The quality of the cloth work is on another level. Rolls perfectly true.", n: "David K.", r: "Private client" },
+  { q: "They moved a 12-ft snooker table three floors up without a scratch.", n: "Serena K.", r: "Serena Lounge" },
+  { q: "Best after-sales service in Rwanda. Response in under an hour every time.", n: "Innocent H.", r: "Green Hills Academy" },
+];
+
+const FAQ_SECTIONS = [
+  { cat: "Prices", items: [
+    { q: "How much does a pool table cost?", a: "Pool tables start at $3,200 for our Regal Pro line. Snooker tables begin at $4,600, and carom tables at $2,900. Custom builds are quoted individually." },
+    { q: "Do you offer payment plans?", a: "Yes — for orders above $2,000 we offer flexible 3–6 month installments with a signed agreement." },
+  ]},
+  { cat: "Delivery", items: [
+    { q: "Do you deliver across Rwanda?", a: "Yes. Delivery within Kigali is included on all tables. Nationwide delivery is quoted based on distance." },
+    { q: "How long does delivery take?", a: "In-stock items ship within 48 hours in Kigali. Custom orders take 3–6 weeks depending on the finish." },
+  ]},
+  { cat: "Warranty", items: [
+    { q: "What warranty do you offer?", a: "All tables carry a 2-year manufacturer warranty on frame and slate, and a 1-year warranty on cloth and cushions." },
+    { q: "Are accessories covered?", a: "Cues carry a 6-month warranty against manufacturing defects." },
+  ]},
+  { cat: "Installation", items: [
+    { q: "Do you install the table?", a: "Yes. Every table is professionally installed by our certified team, including precision leveling." },
+    { q: "Can you move an existing table?", a: "Absolutely. We disassemble, transport and reinstall tables anywhere in Rwanda." },
+  ]},
+  { cat: "Payment methods", items: [
+    { q: "What payment methods do you accept?", a: "MTN Mobile Money, Airtel Money, bank transfer, and cash on delivery for orders within Kigali." },
+    { q: "Do you take card payments?", a: "Card payments will be available soon through our online checkout." },
+  ]},
+];
+
+function FAQSection() {
+  const [open, setOpen] = useState<string | null>("Prices-0");
+  return (
+    <section className="py-24 md:py-32">
+      <div className="container-lux max-w-4xl">
+        <div className="text-xs uppercase tracking-[0.4em] text-gold text-center">06 — Support</div>
+        <h2 className="mt-4 font-display text-4xl md:text-6xl text-center">Frequently asked questions.</h2>
+        <div className="mt-14 space-y-10">
+          {FAQ_SECTIONS.map((sec) => (
+            <div key={sec.cat}>
+              <div className="text-xs uppercase tracking-[0.4em] text-gold">{sec.cat}</div>
+              <div className="mt-3 border-t hairline">
+                {sec.items.map((it, i) => {
+                  const id = `${sec.cat}-${i}`;
+                  const isOpen = open === id;
+                  return (
+                    <div key={id} className="border-b hairline">
+                      <button onClick={() => setOpen(isOpen ? null : id)} className="w-full py-5 flex items-center justify-between text-left gap-6">
+                        <span className="font-display text-lg md:text-xl">{it.q}</span>
+                        {isOpen ? <Minus className="w-5 h-5 text-gold shrink-0" /> : <Plus className="w-5 h-5 text-gold shrink-0" />}
+                      </button>
+                      {isOpen && <p className="pb-6 pr-8 text-muted-foreground text-sm">{it.a}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
