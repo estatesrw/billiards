@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
-import { SITE } from "@/lib/site";
-import { heroTable as heroImg, productPool, productSnooker, productCarom, productCues, projectHotel, projectBar, projectClub } from "@/lib/images";
+import { heroTable as heroImg, productPool, fallbackProduct } from "@/lib/images";
+import { supabase } from "@/integrations/supabase/client";
+import { useSettings, waLink } from "@/lib/settings";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -12,16 +14,79 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { t } = useI18n();
+  const { data: settings } = useSettings();
+
+  const { data: featured = [] } = useQuery({
+    queryKey: ["home", "featured_products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, slug, name, price_cents, image_url, badge")
+        .eq("is_published", true)
+        .eq("is_featured", true)
+        .order("created_at")
+        .limit(4);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: homeProjects = [] } = useQuery({
+    queryKey: ["home", "projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("home_projects")
+        .select("id, name, category, image_url")
+        .eq("is_published", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["home", "testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("id, quote, author_name, author_role")
+        .eq("is_published", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: faqs = [] } = useQuery({
+    queryKey: ["home", "faqs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("id, category, question, answer")
+        .eq("is_published", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const faqGroups = faqs.reduce<Record<string, typeof faqs>>((acc, f) => {
+    (acc[f.category] ||= []).push(f);
+    return acc;
+  }, {});
+  const waHref = waLink(settings?.whatsapp_number || "250794506387", "Hello, I would like a quote for a billiards table.");
 
   return (
     <PageShell>
       {/* Promo banner */}
-      <div className="bg-gold-gradient text-[var(--ink)] overflow-hidden">
-        <div className="container-lux py-2.5 flex items-center justify-center gap-3 text-xs md:text-sm font-medium text-center">
-          <Sparkles className="w-4 h-4 shrink-0" />
-          <span>{t("promo")}</span>
+      {settings?.promo_enabled && settings.promo_text && (
+        <div className="bg-gold-gradient text-[var(--ink)] overflow-hidden">
+          <div className="container-lux py-2.5 flex items-center justify-center gap-3 text-xs md:text-sm font-medium text-center">
+            <Sparkles className="w-4 h-4 shrink-0" />
+            <span>{settings.promo_text}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Hero */}
       <section className="relative pt-16 md:pt-24 pb-12 overflow-hidden">
@@ -104,24 +169,21 @@ function Home() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { img: productPool, name: "Regal Pro Pool Table", price: "From $3,200" },
-              { img: productSnooker, name: "Windsor Snooker 12ft", price: "From $5,800" },
-              { img: productCarom, name: "Carom Heritage Table", price: "From $2,900" },
-              { img: productCues, name: "Elite Cue Set + Case", price: "From $220" },
-            ].map((p) => (
-              <Link key={p.name} to="/shop" className="group block">
+            {featured.map((p) => (
+              <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
                 <div className="relative overflow-hidden aspect-[4/5] bg-secondary">
-                  <img src={p.img} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
+                  <img src={p.image_url || fallbackProduct} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
-                  <div className="absolute top-4 right-4 text-[10px] uppercase tracking-widest bg-[var(--ink)]/60 text-gold px-3 py-1 border border-[var(--gold)]/40">
-                    New
-                  </div>
+                  {p.badge && (
+                    <div className="absolute top-4 right-4 text-[10px] uppercase tracking-widest bg-[var(--ink)]/60 text-gold px-3 py-1 border border-[var(--gold)]/40">
+                      {p.badge}
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div>
                     <div className="font-display text-xl">{p.name}</div>
-                    <div className="text-sm text-muted-foreground">{p.price}</div>
+                    <div className="text-sm text-muted-foreground">${(p.price_cents / 100).toLocaleString()}</div>
                   </div>
                   <div className="flex items-center gap-1 text-gold text-xs">
                     <Star className="w-3 h-3 fill-current" /> 4.9
@@ -129,6 +191,9 @@ function Home() {
                 </div>
               </Link>
             ))}
+            {featured.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-12">No featured products yet.</div>
+            )}
           </div>
         </div>
       </section>
@@ -214,16 +279,12 @@ function Home() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {[
-              { img: projectHotel, cat: "Hotel", name: "Kigali Grand Lounge" },
-              { img: projectBar, cat: "Bar", name: "Amber Speakeasy" },
-              { img: projectClub, cat: "Club", name: "Meridian Private Club" },
-            ].map((p) => (
-              <article key={p.name} className="group relative overflow-hidden aspect-[4/5]">
-                <img src={p.img} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
+            {homeProjects.map((p) => (
+              <article key={p.id} className="group relative overflow-hidden aspect-[4/5]">
+                <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <div className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.cat}</div>
+                  {p.category && <div className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.category}</div>}
                   <div className="mt-2 font-display text-2xl">{p.name}</div>
                 </div>
               </article>
@@ -239,17 +300,17 @@ function Home() {
           <h2 className="mt-4 font-display text-4xl md:text-6xl text-center">{t("sec.testimonials")}</h2>
 
           <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {REVIEWS.map((r) => (
-              <figure key={r.n} className="border hairline p-8 bg-background">
+            {reviews.map((r) => (
+              <figure key={r.id} className="border hairline p-8 bg-background">
                 <div className="flex gap-1 text-gold">
                   {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                 </div>
-                <blockquote className="mt-6 font-display text-xl leading-snug">"{r.q}"</blockquote>
+                <blockquote className="mt-6 font-display text-xl leading-snug">"{r.quote}"</blockquote>
                 <figcaption className="mt-6 flex items-center gap-3 text-sm">
-                  <div className="w-10 h-10 rounded-full bg-gold-gradient grid place-items-center text-[var(--ink)] font-display">{r.n.charAt(0)}</div>
+                  <div className="w-10 h-10 rounded-full bg-gold-gradient grid place-items-center text-[var(--ink)] font-display">{r.author_name.charAt(0)}</div>
                   <div>
-                    <div className="text-foreground">{r.n}</div>
-                    <div className="text-muted-foreground">{r.r}</div>
+                    <div className="text-foreground">{r.author_name}</div>
+                    <div className="text-muted-foreground">{r.author_role}</div>
                   </div>
                 </figcaption>
               </figure>
@@ -259,7 +320,7 @@ function Home() {
       </section>
 
       {/* FAQ */}
-      <FAQSection />
+      <FAQSection groups={faqGroups} />
 
       {/* CTA banner */}
       <section className="py-24">
@@ -273,7 +334,7 @@ function Home() {
               </h2>
               <div className="mt-10 flex flex-wrap gap-4 justify-center">
                 <a
-                  href={SITE.waLink("Hello, I would like a quote for a billiards table.")}
+                  href={waHref}
                   target="_blank"
                   rel="noreferrer"
                   className="px-8 py-4 bg-gold-gradient text-[var(--ink)] uppercase text-xs tracking-[0.3em]"
