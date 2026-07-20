@@ -41,6 +41,27 @@ type Order = {
   subtotal_cents: number; status: string; created_at: string;
 };
 
+type SiteSettings = {
+  id: string;
+  whatsapp_number: string;
+  whatsapp_display: string;
+  order_message_template: string;
+  promo_text: string;
+  promo_enabled: boolean;
+};
+type Testimonial = {
+  id: string; quote: string; author_name: string; author_role: string | null;
+  sort_order: number; is_published: boolean;
+};
+type Faq = {
+  id: string; category: string; question: string; answer: string;
+  sort_order: number; is_published: boolean;
+};
+type HomeProject = {
+  id: string; name: string; category: string | null; image_url: string;
+  sort_order: number; is_published: boolean;
+};
+
 const EMPTY: Omit<Product, "id"> = {
   slug: "",
   name: "",
@@ -55,6 +76,10 @@ const EMPTY: Omit<Product, "id"> = {
   is_published: true,
 };
 
+const EMPTY_TESTI: Omit<Testimonial, "id"> = { quote: "", author_name: "", author_role: "", sort_order: 0, is_published: true };
+const EMPTY_FAQ: Omit<Faq, "id"> = { category: "General", question: "", answer: "", sort_order: 0, is_published: true };
+const EMPTY_HPROJ: Omit<HomeProject, "id"> = { name: "", category: "", image_url: "", sort_order: 0, is_published: true };
+
 const EMPTY_SERVICE: Omit<Service, "id"> = {
   title: "", description: "", price_cents: 0, currency: "USD",
   image_url: "", icon: "Sparkles", sort_order: 0, is_published: true,
@@ -63,7 +88,7 @@ const EMPTY_GALLERY: Omit<GalleryItem, "id"> = {
   image_url: "", caption: "", span: "", sort_order: 0, is_published: true,
 };
 
-type Tab = "products" | "services" | "gallery" | "orders";
+type Tab = "products" | "services" | "gallery" | "orders" | "home" | "settings";
 
 function Admin() {
   const qc = useQueryClient();
@@ -72,6 +97,10 @@ function Admin() {
   const [draft, setDraft] = useState<Omit<Product, "id"> | Product>(EMPTY);
   const [svcDraft, setSvcDraft] = useState<Omit<Service, "id"> | Service>(EMPTY_SERVICE);
   const [galDraft, setGalDraft] = useState<Omit<GalleryItem, "id"> | GalleryItem>(EMPTY_GALLERY);
+  const [testiDraft, setTestiDraft] = useState<Omit<Testimonial, "id"> | Testimonial>(EMPTY_TESTI);
+  const [faqDraft, setFaqDraft] = useState<Omit<Faq, "id"> | Faq>(EMPTY_FAQ);
+  const [hprojDraft, setHprojDraft] = useState<Omit<HomeProject, "id"> | HomeProject>(EMPTY_HPROJ);
+  const [settingsDraft, setSettingsDraft] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
