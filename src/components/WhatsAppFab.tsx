@@ -1,9 +1,13 @@
+import { useSettings, waLink } from "@/lib/settings";
 import { SITE } from "@/lib/site";
 
 export function WhatsAppFab() {
+  const { data: s } = useSettings();
+  const number = s?.whatsapp_number || SITE.whatsapp;
+  const href = waLink(number, `Hello ${SITE.name}, I would like to know more.`);
   return (
     <a
-      href={SITE.waLink("Hello B Trader Elite Billiards, I would like to know more.")}
+      href={href}
       target="_blank"
       rel="noreferrer"
       aria-label="Chat on WhatsApp"
