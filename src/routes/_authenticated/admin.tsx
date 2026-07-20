@@ -202,27 +202,51 @@ function Admin() {
 
   useEffect(() => { if (settings && !settingsDraft) setSettingsDraft(settings); }, [settings, settingsDraft]);
 
-  const mkUpsert = <T extends { id?: string }>(table: string, key: string) =>
-    useMutation({
-      mutationFn: async (row: T) => {
-        if (row.id) { const { error } = await supabase.from(table as never).update(row as never).eq("id", row.id); if (error) throw error; }
-        else { const { error } = await supabase.from(table as never).insert(row as never); if (error) throw error; }
-      },
-      onSuccess: () => { toast.success("Saved."); qc.invalidateQueries({ queryKey: ["admin", key] }); qc.invalidateQueries({ queryKey: ["home", key] }); },
-      onError: (e: Error) => toast.error(e.message),
-    });
-  const mkDel = (table: string, key: string) => useMutation({
-    mutationFn: async (id: string) => { const { error } = await supabase.from(table as never).delete().eq("id", id); if (error) throw error; },
-    onSuccess: () => { toast.success("Deleted."); qc.invalidateQueries({ queryKey: ["admin", key] }); qc.invalidateQueries({ queryKey: ["home", key] }); },
+  const invalidate = (key: string) => {
+    qc.invalidateQueries({ queryKey: ["admin", key] });
+    qc.invalidateQueries({ queryKey: ["home", key] });
+  };
+  const upsertTesti = useMutation({
+    mutationFn: async (t: Omit<Testimonial, "id"> | Testimonial) => {
+      const payload = { ...t, author_role: t.author_role || null };
+      if ("id" in t && t.id) { const { error } = await supabase.from("testimonials").update(payload).eq("id", t.id); if (error) throw error; }
+      else { const { error } = await supabase.from("testimonials").insert(payload); if (error) throw error; }
+    },
+    onSuccess: () => { toast.success("Saved."); setTestiDraft(EMPTY_TESTI); invalidate("testimonials"); },
     onError: (e: Error) => toast.error(e.message),
   });
-
-  const upsertTesti = mkUpsert<Testimonial>("testimonials", "testimonials");
-  const delTesti = mkDel("testimonials", "testimonials");
-  const upsertFaq = mkUpsert<Faq>("faqs", "faqs");
-  const delFaq = mkDel("faqs", "faqs");
-  const upsertHproj = mkUpsert<HomeProject>("home_projects", "projects");
-  const delHproj = mkDel("home_projects", "projects");
+  const delTesti = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("testimonials").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); invalidate("testimonials"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const upsertFaq = useMutation({
+    mutationFn: async (f: Omit<Faq, "id"> | Faq) => {
+      if ("id" in f && f.id) { const { error } = await supabase.from("faqs").update(f).eq("id", f.id); if (error) throw error; }
+      else { const { error } = await supabase.from("faqs").insert(f); if (error) throw error; }
+    },
+    onSuccess: () => { toast.success("Saved."); setFaqDraft(EMPTY_FAQ); invalidate("faqs"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delFaq = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("faqs").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); invalidate("faqs"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const upsertHproj = useMutation({
+    mutationFn: async (p: Omit<HomeProject, "id"> | HomeProject) => {
+      const payload = { ...p, category: p.category || null };
+      if ("id" in p && p.id) { const { error } = await supabase.from("home_projects").update(payload).eq("id", p.id); if (error) throw error; }
+      else { const { error } = await supabase.from("home_projects").insert(payload); if (error) throw error; }
+    },
+    onSuccess: () => { toast.success("Saved."); setHprojDraft(EMPTY_HPROJ); invalidate("projects"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delHproj = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("home_projects").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); invalidate("projects"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const saveSettings = useMutation({
     mutationFn: async (s: SiteSettings) => {
