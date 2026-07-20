@@ -353,38 +353,6 @@ function Home() {
   );
 }
 
-const REVIEWS = [
-  { q: "The most professional installation team I've worked with. The table is a work of art.", n: "Jean Bosco", r: "Owner, Amber Bar" },
-  { q: "From sourcing to setup, seamless. Our members compliment the room every week.", n: "Aline U.", r: "Manager, Meridian Club" },
-  { q: "Delivered on time, on budget — and refelted our old table like new.", n: "Patrick M.", r: "Kigali Grand Hotel" },
-  { q: "The quality of the cloth work is on another level. Rolls perfectly true.", n: "David K.", r: "Private client" },
-  { q: "They moved a 12-ft snooker table three floors up without a scratch.", n: "Serena K.", r: "Serena Lounge" },
-  { q: "Best after-sales service in Rwanda. Response in under an hour every time.", n: "Innocent H.", r: "Green Hills Academy" },
-];
-
-const FAQ_SECTIONS = [
-  { cat: "Prices", items: [
-    { q: "How much does a pool table cost?", a: "Pool tables start at $3,200 for our Regal Pro line. Snooker tables begin at $4,600, and carom tables at $2,900. Custom builds are quoted individually." },
-    { q: "Do you offer payment plans?", a: "Yes — for orders above $2,000 we offer flexible 3–6 month installments with a signed agreement." },
-  ]},
-  { cat: "Delivery", items: [
-    { q: "Do you deliver across Rwanda?", a: "Yes. Delivery within Kigali is included on all tables. Nationwide delivery is quoted based on distance." },
-    { q: "How long does delivery take?", a: "In-stock items ship within 48 hours in Kigali. Custom orders take 3–6 weeks depending on the finish." },
-  ]},
-  { cat: "Warranty", items: [
-    { q: "What warranty do you offer?", a: "All tables carry a 2-year manufacturer warranty on frame and slate, and a 1-year warranty on cloth and cushions." },
-    { q: "Are accessories covered?", a: "Cues carry a 6-month warranty against manufacturing defects." },
-  ]},
-  { cat: "Installation", items: [
-    { q: "Do you install the table?", a: "Yes. Every table is professionally installed by our certified team, including precision leveling." },
-    { q: "Can you move an existing table?", a: "Absolutely. We disassemble, transport and reinstall tables anywhere in Rwanda." },
-  ]},
-  { cat: "Payment methods", items: [
-    { q: "What payment methods do you accept?", a: "MTN Mobile Money, Airtel Money, bank transfer, and cash on delivery for orders within Kigali." },
-    { q: "Do you take card payments?", a: "Card payments will be available soon through our online checkout." },
-  ]},
-];
-
 function FAQSection({ groups }: { groups: Record<string, { id: string; category: string; question: string; answer: string }[]> }) {
   const [open, setOpen] = useState<string | null>("Prices-0");
   const cats = Object.keys(groups);
