@@ -84,17 +84,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "B Trader Elite Billiards — Premium Pool & Snooker Tables in Rwanda" },
       { name: "description", content: "Rwanda's premier supplier of luxury billiards, pool and snooker tables, cues, and accessories. Installation, repair and maintenance across Kigali." },
       { name: "author", content: "B Trader Elite Billiards" },
-      { property: "og:title", content: "B Trader Elite Billiards" },
-      { property: "og:description", content: "Premium billiards tables & accessories in Rwanda. Installation, maintenance and refelting by trusted specialists." },
+      { property: "og:title", content: "B Trader Elite Billiards — Premium Pool & Snooker Tables in Rwanda" },
+      { property: "og:description", content: "Rwanda's premier supplier of luxury billiards, pool and snooker tables, cues, and accessories. Installation, repair and maintenance across Kigali." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "B Trader Elite Billiards — Premium Pool & Snooker Tables in Rwanda" },
+      { name: "twitter:description", content: "Rwanda's premier supplier of luxury billiards, pool and snooker tables, cues, and accessories. Installation, repair and maintenance across Kigali." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/RSj2y3Jo7VUkTCpNF6GccYGhJoH2/social-images/social-1784554805700-images_(15).webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/RSj2y3Jo7VUkTCpNF6GccYGhJoH2/social-images/social-1784554805700-images_(15).webp" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
