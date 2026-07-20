@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE } from "@/lib/site";
+import { fetchSettings, renderTemplate, waLink, DEFAULT_TEMPLATE } from "@/lib/settings";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 
@@ -30,6 +30,7 @@ function Checkout() {
     const waWindow = window.open("about:blank", "_blank");
     setBusy(true);
     try {
+      const settings = await fetchSettings();
       const { data: u } = await supabase.auth.getUser();
       const { data: order, error } = await supabase.from("orders").insert({
         ...form,
@@ -52,8 +53,18 @@ function Checkout() {
       if (iErr) throw iErr;
 
       const lines = items.map((i) => `• ${i.name} × ${i.quantity} — $${((i.price_cents * i.quantity) / 100).toLocaleString()}`).join("\n");
-      const msg = `New order request #${order.id.slice(0, 8)}\n\nName: ${form.full_name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}\n\n${lines}\n\nSubtotal: $${(subtotal / 100).toLocaleString()}\n\nNotes: ${form.notes || "—"}`;
-      const wa = SITE.waLink(msg);
+      const msg = renderTemplate(settings.order_message_template || DEFAULT_TEMPLATE, {
+        order_id: order.id.slice(0, 8),
+        full_name: form.full_name,
+        email: form.email,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        items: lines,
+        subtotal: (subtotal / 100).toLocaleString(),
+        notes: form.notes || "—",
+      });
+      const wa = waLink(settings.whatsapp_number, msg);
       clear();
       toast.success("Order sent. Continuing to WhatsApp…");
       if (waWindow) waWindow.location.href = wa;
