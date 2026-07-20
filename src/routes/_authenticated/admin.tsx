@@ -385,7 +385,7 @@ function Admin() {
       <PageHeader eyebrow="Admin" title="Content manager" sub="Manage products, services, gallery and orders." />
       <section className="container-lux pb-6">
         <div className="flex flex-wrap gap-2">
-          {(["products","services","gallery","orders"] as Tab[]).map((k) => (
+          {(["products","services","gallery","home","orders","settings"] as Tab[]).map((k) => (
             <button key={k} onClick={() => setTab(k)} className={`px-4 py-2 pill text-xs uppercase tracking-widest ${tab===k?"bg-[var(--ink)] text-[var(--ivory)]":"border hairline hover:bg-secondary"}`}>{k}</button>
           ))}
         </div>
@@ -434,6 +434,10 @@ function Admin() {
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={draft.is_published} onChange={(e) => setDraft({ ...draft, is_published: e.target.checked })} />
               Published
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={draft.is_featured} onChange={(e) => setDraft({ ...draft, is_featured: e.target.checked })} />
+              Featured on home
             </label>
             <div className="flex gap-2 pt-2">
               <button type="submit" disabled={upsert.isPending} className="inline-flex items-center gap-2 px-5 py-3 pill bg-[var(--ink)] text-[var(--ivory)] text-xs uppercase tracking-widest hover:bg-gold-gradient hover:text-[var(--ink)] disabled:opacity-60">
