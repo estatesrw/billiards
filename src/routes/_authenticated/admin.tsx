@@ -25,6 +25,7 @@ type Product = {
   rating: number;
   badge: string | null;
   is_published: boolean;
+  is_featured: boolean;
 };
 
 type Service = {
@@ -74,6 +75,7 @@ const EMPTY: Omit<Product, "id"> = {
   rating: 5,
   badge: "",
   is_published: true,
+  is_featured: false,
 };
 
 const EMPTY_TESTI: Omit<Testimonial, "id"> = { quote: "", author_name: "", author_role: "", sort_order: 0, is_published: true };
@@ -163,6 +165,78 @@ function Admin() {
       if (error) throw error;
       return data as Order[];
     },
+  });
+
+  const { data: testimonials = [] } = useQuery<Testimonial[]>({
+    queryKey: ["admin", "testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("testimonials").select("*").order("sort_order");
+      if (error) throw error;
+      return data as Testimonial[];
+    },
+  });
+  const { data: faqs = [] } = useQuery<Faq[]>({
+    queryKey: ["admin", "faqs"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("faqs").select("*").order("sort_order");
+      if (error) throw error;
+      return data as Faq[];
+    },
+  });
+  const { data: hprojects = [] } = useQuery<HomeProject[]>({
+    queryKey: ["admin", "home_projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("home_projects").select("*").order("sort_order");
+      if (error) throw error;
+      return data as HomeProject[];
+    },
+  });
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["admin", "site_settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("*").eq("id", "main").maybeSingle();
+      if (error) throw error;
+      return data as SiteSettings;
+    },
+  });
+
+  useEffect(() => { if (settings && !settingsDraft) setSettingsDraft(settings); }, [settings, settingsDraft]);
+
+  const mkUpsert = <T extends { id?: string }>(table: string, key: string) =>
+    useMutation({
+      mutationFn: async (row: T) => {
+        if (row.id) { const { error } = await supabase.from(table as never).update(row as never).eq("id", row.id); if (error) throw error; }
+        else { const { error } = await supabase.from(table as never).insert(row as never); if (error) throw error; }
+      },
+      onSuccess: () => { toast.success("Saved."); qc.invalidateQueries({ queryKey: ["admin", key] }); qc.invalidateQueries({ queryKey: ["home", key] }); },
+      onError: (e: Error) => toast.error(e.message),
+    });
+  const mkDel = (table: string, key: string) => useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from(table as never).delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); qc.invalidateQueries({ queryKey: ["admin", key] }); qc.invalidateQueries({ queryKey: ["home", key] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const upsertTesti = mkUpsert<Testimonial>("testimonials", "testimonials");
+  const delTesti = mkDel("testimonials", "testimonials");
+  const upsertFaq = mkUpsert<Faq>("faqs", "faqs");
+  const delFaq = mkDel("faqs", "faqs");
+  const upsertHproj = mkUpsert<HomeProject>("home_projects", "projects");
+  const delHproj = mkDel("home_projects", "projects");
+
+  const saveSettings = useMutation({
+    mutationFn: async (s: SiteSettings) => {
+      const { error } = await supabase.from("site_settings").update({
+        whatsapp_number: s.whatsapp_number,
+        whatsapp_display: s.whatsapp_display,
+        order_message_template: s.order_message_template,
+        promo_text: s.promo_text,
+        promo_enabled: s.promo_enabled,
+      }).eq("id", "main");
+      if (error) throw error;
+    },
+    onSuccess: () => { toast.success("Settings saved."); qc.invalidateQueries({ queryKey: ["admin", "site_settings"] }); qc.invalidateQueries({ queryKey: ["site_settings"] }); },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const upsert = useMutation({
