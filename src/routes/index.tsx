@@ -385,34 +385,36 @@ const FAQ_SECTIONS = [
   ]},
 ];
 
-function FAQSection() {
+function FAQSection({ groups }: { groups: Record<string, { id: string; category: string; question: string; answer: string }[]> }) {
   const [open, setOpen] = useState<string | null>("Prices-0");
+  const cats = Object.keys(groups);
   return (
     <section className="py-24 md:py-32">
       <div className="container-lux max-w-4xl">
         <div className="text-xs uppercase tracking-[0.4em] text-gold text-center">06 — Support</div>
         <h2 className="mt-4 font-display text-4xl md:text-6xl text-center">Frequently asked questions.</h2>
         <div className="mt-14 space-y-10">
-          {FAQ_SECTIONS.map((sec) => (
-            <div key={sec.cat}>
-              <div className="text-xs uppercase tracking-[0.4em] text-gold">{sec.cat}</div>
+          {cats.map((cat) => (
+            <div key={cat}>
+              <div className="text-xs uppercase tracking-[0.4em] text-gold">{cat}</div>
               <div className="mt-3 border-t hairline">
-                {sec.items.map((it, i) => {
-                  const id = `${sec.cat}-${i}`;
+                {groups[cat].map((it, i) => {
+                  const id = `${cat}-${i}`;
                   const isOpen = open === id;
                   return (
                     <div key={id} className="border-b hairline">
                       <button onClick={() => setOpen(isOpen ? null : id)} className="w-full py-5 flex items-center justify-between text-left gap-6">
-                        <span className="font-display text-lg md:text-xl">{it.q}</span>
+                        <span className="font-display text-lg md:text-xl">{it.question}</span>
                         {isOpen ? <Minus className="w-5 h-5 text-gold shrink-0" /> : <Plus className="w-5 h-5 text-gold shrink-0" />}
                       </button>
-                      {isOpen && <p className="pb-6 pr-8 text-muted-foreground text-sm">{it.a}</p>}
+                      {isOpen && <p className="pb-6 pr-8 text-muted-foreground text-sm whitespace-pre-line">{it.answer}</p>}
                     </div>
                   );
                 })}
               </div>
             </div>
           ))}
+          {cats.length === 0 && <div className="text-center text-muted-foreground">No FAQs yet.</div>}
         </div>
       </div>
     </section>
