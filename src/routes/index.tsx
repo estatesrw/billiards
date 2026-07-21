@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
-import { heroTable as heroImg, productPool, fallbackProduct } from "@/lib/images";
+import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
 
@@ -15,6 +15,19 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { t } = useI18n();
   const { data: settings } = useSettings();
+
+  const { data: heroSlides = [] } = useQuery({
+    queryKey: ["home", "hero_slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("id, image_url, label, link_url")
+        .eq("is_published", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const { data: featured = [] } = useQuery({
     queryKey: ["home", "featured_products"],
@@ -117,8 +130,8 @@ function Home() {
             </div>
           </div>
 
-          {/* Hero product carousel */}
-          <HeroCarousel products={featured} fallback={heroImg} />
+          {/* Hero fanned carousel */}
+          <HeroFanCarousel slides={heroSlides} />
 
           {/* Stat strip */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
