@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { heroTable as heroImg, productPool, fallbackProduct } from "@/lib/images";
@@ -25,7 +25,7 @@ function Home() {
         .eq("is_published", true)
         .eq("is_featured", true)
         .order("created_at")
-        .limit(4);
+        .limit(8);
       if (error) throw error;
       return data ?? [];
     },
