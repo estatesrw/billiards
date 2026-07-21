@@ -94,48 +94,31 @@ function Home() {
           <div className="max-w-5xl animate-lux-in">
             <div className="flex items-center gap-4">
               <span className="font-script text-gold text-4xl md:text-5xl -rotate-6 inline-block">hello,</span>
-              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">{t("hero.eyebrow")}</span>
+              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">shop the collection</span>
             </div>
-            <h1 className="mt-4 font-display text-[3rem] md:text-[7rem] leading-[0.95] tracking-tight">
-              {t("hero.title.a")}<span className="text-gold">.</span>
-              <br />
-              <span className="text-muted-foreground">{t("hero.title.b")}</span>
+            <h1 className="mt-4 font-display text-[2.75rem] md:text-[5.5rem] leading-[0.95] tracking-tight">
+              Play in style<span className="text-gold">.</span>
             </h1>
-            <div className="mt-10 grid md:grid-cols-[1fr_auto] gap-8 items-end">
-              <p className="max-w-xl text-lg text-muted-foreground">{t("hero.sub")}</p>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  to="/shop"
-                  className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
-                >
-                  {t("cta.shop")}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
-                >
-                  {t("cta.contact")}
-                </Link>
-              </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/shop"
+                className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {t("cta.shop")}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
+              >
+                {t("cta.contact")}
+              </Link>
             </div>
           </div>
 
-          {/* Hero image plate */}
-          <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/8] shadow-luxe">
-            <img
-              src={heroImg}
-              alt="Luxury billiards table in a dim-lit private lounge"
-              width={1920}
-              height={1280}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-            <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 text-[var(--ivory)]">
-              <div className="text-[10px] uppercase tracking-[0.4em] text-gold">Signature</div>
-              <div className="font-display text-2xl md:text-4xl mt-2">Regal Pro — 8ft slate</div>
-            </div>
-          </div>
+          {/* Hero product carousel */}
+          <HeroCarousel products={featured} fallback={heroImg} />
 
           {/* Stat strip */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
