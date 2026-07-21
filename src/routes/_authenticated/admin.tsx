@@ -62,6 +62,10 @@ type HomeProject = {
   id: string; name: string; category: string | null; image_url: string;
   sort_order: number; is_published: boolean;
 };
+type HeroSlide = {
+  id: string; image_url: string; label: string; link_url: string | null;
+  sort_order: number; is_published: boolean;
+};
 
 const EMPTY: Omit<Product, "id"> = {
   slug: "",
@@ -81,6 +85,7 @@ const EMPTY: Omit<Product, "id"> = {
 const EMPTY_TESTI: Omit<Testimonial, "id"> = { quote: "", author_name: "", author_role: "", sort_order: 0, is_published: true };
 const EMPTY_FAQ: Omit<Faq, "id"> = { category: "General", question: "", answer: "", sort_order: 0, is_published: true };
 const EMPTY_HPROJ: Omit<HomeProject, "id"> = { name: "", category: "", image_url: "", sort_order: 0, is_published: true };
+const EMPTY_HERO: Omit<HeroSlide, "id"> = { image_url: "", label: "", link_url: "/shop", sort_order: 0, is_published: true };
 
 const EMPTY_SERVICE: Omit<Service, "id"> = {
   title: "", description: "", price_cents: 0, currency: "USD",
@@ -90,7 +95,7 @@ const EMPTY_GALLERY: Omit<GalleryItem, "id"> = {
   image_url: "", caption: "", span: "", sort_order: 0, is_published: true,
 };
 
-type Tab = "products" | "services" | "gallery" | "orders" | "home" | "settings";
+type Tab = "products" | "services" | "gallery" | "orders" | "home" | "hero" | "settings";
 
 function Admin() {
   const qc = useQueryClient();
@@ -102,6 +107,7 @@ function Admin() {
   const [testiDraft, setTestiDraft] = useState<Omit<Testimonial, "id"> | Testimonial>(EMPTY_TESTI);
   const [faqDraft, setFaqDraft] = useState<Omit<Faq, "id"> | Faq>(EMPTY_FAQ);
   const [hprojDraft, setHprojDraft] = useState<Omit<HomeProject, "id"> | HomeProject>(EMPTY_HPROJ);
+  const [heroDraft, setHeroDraft] = useState<Omit<HeroSlide, "id"> | HeroSlide>(EMPTY_HERO);
   const [settingsDraft, setSettingsDraft] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
@@ -191,6 +197,14 @@ function Admin() {
       return data as HomeProject[];
     },
   });
+  const { data: heroSlides = [] } = useQuery<HeroSlide[]>({
+    queryKey: ["admin", "hero_slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order");
+      if (error) throw error;
+      return data as HeroSlide[];
+    },
+  });
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ["admin", "site_settings"],
     queryFn: async () => {
@@ -245,6 +259,21 @@ function Admin() {
   const delHproj = useMutation({
     mutationFn: async (id: string) => { const { error } = await supabase.from("home_projects").delete().eq("id", id); if (error) throw error; },
     onSuccess: () => { toast.success("Deleted."); invalidate("projects"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const upsertHero = useMutation({
+    mutationFn: async (h: Omit<HeroSlide, "id"> | HeroSlide) => {
+      const payload = { ...h, link_url: h.link_url || null };
+      if ("id" in h && h.id) { const { error } = await supabase.from("hero_slides").update(payload).eq("id", h.id); if (error) throw error; }
+      else { const { error } = await supabase.from("hero_slides").insert(payload); if (error) throw error; }
+    },
+    onSuccess: () => { toast.success("Saved."); setHeroDraft(EMPTY_HERO); invalidate("hero_slides"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delHero = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("hero_slides").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); invalidate("hero_slides"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -385,7 +414,7 @@ function Admin() {
       <PageHeader eyebrow="Admin" title="Content manager" sub="Manage products, services, gallery and orders." />
       <section className="container-lux pb-6">
         <div className="flex flex-wrap gap-2">
-          {(["products","services","gallery","home","orders","settings"] as Tab[]).map((k) => (
+          {(["products","services","gallery","hero","home","orders","settings"] as Tab[]).map((k) => (
             <button key={k} onClick={() => setTab(k)} className={`px-4 py-2 pill text-xs uppercase tracking-widest ${tab===k?"bg-[var(--ink)] text-[var(--ivory)]":"border hairline hover:bg-secondary"}`}>{k}</button>
           ))}
         </div>
@@ -711,6 +740,46 @@ function Admin() {
         </section>
       )}
 
+      {tab === "hero" && (
+        <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
+          <div className="border hairline rounded-3xl bg-card p-6">
+            <div className="font-display text-xl">{"id" in heroDraft && heroDraft.id ? "Edit hero slide" : "New hero slide"}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Cards shown in the fanned carousel at the top of the home page.</p>
+            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertHero.mutate(heroDraft); }}>
+              <Field label="Image URL"><input required value={heroDraft.image_url} onChange={(e) => setHeroDraft({ ...heroDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <Field label="Label (shown on card)"><input required value={heroDraft.label} onChange={(e) => setHeroDraft({ ...heroDraft, label: e.target.value })} className={inp} placeholder="Luxury Pool Tables" /></Field>
+              <Field label="Link (optional)"><input value={heroDraft.link_url ?? ""} onChange={(e) => setHeroDraft({ ...heroDraft, link_url: e.target.value })} className={inp} placeholder="/shop" /></Field>
+              <Field label="Sort order"><input type="number" value={heroDraft.sort_order} onChange={(e) => setHeroDraft({ ...heroDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={heroDraft.is_published} onChange={(e) => setHeroDraft({ ...heroDraft, is_published: e.target.checked })} /> Published (visible in carousel)</label>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" disabled={upsertHero.isPending} className="inline-flex items-center gap-2 px-5 py-3 pill bg-[var(--ink)] text-[var(--ivory)] text-xs uppercase tracking-widest hover:bg-gold-gradient hover:text-[var(--ink)] disabled:opacity-60"><Save className="w-4 h-4" /> {"id" in heroDraft && heroDraft.id ? "Update" : "Create"}</button>
+                {"id" in heroDraft && heroDraft.id && <button type="button" onClick={() => setHeroDraft(EMPTY_HERO)} className="px-5 py-3 pill border hairline text-xs uppercase tracking-widest hover:bg-secondary">Cancel</button>}
+              </div>
+            </form>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">Hero slides · {heroSlides.length}</div>
+              <button onClick={() => setHeroDraft(EMPTY_HERO)} className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold hover:underline"><Plus className="w-3 h-3" /> New</button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {heroSlides.map((h) => (
+                <div key={h.id} className="border hairline rounded-2xl bg-card p-3">
+                  <div className="aspect-[3/4] rounded-xl bg-secondary overflow-hidden">
+                    {h.image_url && <img src={h.image_url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="mt-2 font-display text-lg truncate">{h.label}</div>
+                  <div className="text-xs text-muted-foreground truncate">{h.link_url || "no link"} · order {h.sort_order} · {h.is_published ? "live" : "hidden"}</div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => setHeroDraft(h)} className="flex-1 px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
+                    <button onClick={() => { if (confirm("Delete?")) delHero.mutate(h.id); }} className="w-9 h-9 grid place-items-center pill border hairline hover:bg-destructive hover:text-[var(--ivory)] hover:border-transparent"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       {tab === "settings" && settingsDraft && (
         <section className="container-lux pb-24 max-w-3xl">
           <form onSubmit={(e) => { e.preventDefault(); saveSettings.mutate(settingsDraft); }} className="border hairline rounded-3xl bg-card p-8 space-y-4">

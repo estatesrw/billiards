@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
-import { heroTable as heroImg, productPool, fallbackProduct } from "@/lib/images";
+import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
 
@@ -15,6 +15,19 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { t } = useI18n();
   const { data: settings } = useSettings();
+
+  const { data: heroSlides = [] } = useQuery({
+    queryKey: ["home", "hero_slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("id, image_url, label, link_url")
+        .eq("is_published", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const { data: featured = [] } = useQuery({
     queryKey: ["home", "featured_products"],
@@ -117,8 +130,8 @@ function Home() {
             </div>
           </div>
 
-          {/* Hero product carousel */}
-          <HeroCarousel products={featured} fallback={heroImg} />
+          {/* Hero fanned carousel */}
+          <HeroFanCarousel slides={heroSlides} />
 
           {/* Stat strip */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
@@ -372,84 +385,91 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
   );
 }
 
-type HeroProduct = { id: string; slug: string; name: string; price_cents: number; image_url: string | null; badge: string | null };
+type HeroSlide = { id: string; image_url: string; label: string; link_url: string | null };
 
-function HeroCarousel({ products, fallback }: { products: HeroProduct[]; fallback: string }) {
-  const slides: HeroProduct[] = products.length > 0 ? products : [
-    { id: "placeholder", slug: "", name: "Featured collection", price_cents: 0, image_url: fallback, badge: "Preview" },
-  ];
-  const [i, setI] = useState(0);
+function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
+  if (slides.length === 0) return null;
+  const [offset, setOffset] = useState(0);
   const count = slides.length;
-
-  useEffect(() => {
-    if (count <= 1) return;
-    const t = setInterval(() => setI((v) => (v + 1) % count), 5000);
-    return () => clearInterval(t);
-  }, [count]);
-
-  const go = (d: number) => setI((v) => (v + d + count) % count);
-  const active = slides[i];
-  const priceLabel = active.price_cents > 0 ? `$${(active.price_cents / 100).toLocaleString()}` : null;
-  const hasLink = active.slug !== "";
+  // build fan of up to 7 visible cards centered around `offset`
+  const visibleCount = Math.min(7, count);
+  const half = Math.floor(visibleCount / 2);
+  const visible = Array.from({ length: visibleCount }, (_, k) => {
+    const rel = k - half;
+    const idx = ((offset + rel) % count + count) % count;
+    return { slide: slides[idx], rel };
+  });
+  const shift = (d: number) => setOffset((v) => (v + d + count) % count);
 
   return (
-    <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/9] md:aspect-[16/8] shadow-luxe bg-[var(--ink)]">
-      {slides.map((s, idx) => (
-        <img
-          key={s.id}
-          src={s.image_url || fallback}
-          alt={s.name}
-          loading={idx === 0 ? "eager" : "lazy"}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0"}`}
-        />
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
-
-      {/* Slide info */}
-      <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 right-6 md:right-auto text-[var(--ivory)] flex items-end justify-between gap-6 flex-wrap">
-        <div>
-          {active.badge && <div className="text-[10px] uppercase tracking-[0.4em] text-gold">{active.badge}</div>}
-          <div className="font-display text-2xl md:text-4xl mt-2">{active.name}</div>
-          {priceLabel && <div className="mt-1 text-sm text-[var(--ivory)]/80">{priceLabel}</div>}
-        </div>
-        {hasLink && (
-          <Link
-            to="/shop/$slug"
-            params={{ slug: active.slug }}
-            className="inline-flex items-center gap-2 px-5 py-3 pill bg-gold-gradient text-[var(--ink)] text-xs uppercase tracking-[0.3em] hover:opacity-90 transition"
-          >
-            Shop now <ArrowRight className="w-4 h-4" />
-          </Link>
-        )}
-      </div>
-
-      {count > 1 && (
-        <>
-          <button
-            onClick={() => go(-1)}
-            aria-label="Previous product"
-            className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => go(1)}
-            aria-label="Next product"
-            className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-          <div className="absolute top-4 right-4 flex gap-1.5">
-            {slides.map((s, idx) => (
-              <button
-                key={s.id}
-                onClick={() => setI(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-gold" : "w-1.5 bg-[var(--ivory)]/50"}`}
+    <div className="mt-16 md:mt-20 relative">
+      <div
+        className="relative mx-auto"
+        style={{ height: "clamp(320px, 42vw, 520px)", perspective: "1200px" }}
+      >
+        {visible.map(({ slide, rel }) => {
+          const abs = Math.abs(rel);
+          const rotate = rel * 8; // degrees
+          const translateX = rel * 15; // %
+          const translateY = abs * abs * 6; // arc downwards on outer
+          const scale = 1 - abs * 0.06;
+          const z = 100 - abs;
+          const opacity = abs > 3 ? 0.35 : 1;
+          const isCenter = rel === 0;
+          const inner = (
+            <>
+              <img
+                src={slide.image_url}
+                alt={slide.label}
+                loading={isCenter ? "eager" : "lazy"}
+                className="w-full h-full object-cover"
               />
-            ))}
+              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 whitespace-nowrap px-4 py-1.5 pill bg-[var(--ivory)] text-[var(--ink)] text-[10px] md:text-xs uppercase tracking-widest shadow-luxe">
+                {slide.label}
+              </div>
+            </>
+          );
+          const cardCls =
+            "absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-[var(--ink)] transition-all duration-500 ease-out ring-1 ring-black/5";
+          const style: React.CSSProperties = {
+            width: "clamp(180px, 22vw, 300px)",
+            height: "clamp(240px, 30vw, 400px)",
+            transform: `translate(-50%, -50%) translateX(${translateX}%) translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+            zIndex: z,
+            opacity,
+          };
+          return slide.link_url ? (
+            <a key={slide.id + rel} href={slide.link_url} className={cardCls + " cursor-pointer hover:brightness-110"} style={style}>
+              {inner}
+            </a>
+          ) : (
+            <div key={slide.id + rel} className={cardCls} style={style}>
+              {inner}
+            </div>
+          );
+        })}
+      </div>
+      {count > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
+            onClick={() => shift(-1)}
+            aria-label="Previous"
+            className="w-10 h-10 grid place-items-center pill border hairline text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition"
+          >
+            ←
+          </button>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">
+            {((offset % count) + count) % count + 1} / {count}
           </div>
-        </>
+          <button
+            onClick={() => shift(1)}
+            aria-label="Next"
+            className="w-10 h-10 grid place-items-center pill border hairline text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition"
+          >
+            →
+          </button>
+        </div>
       )}
     </div>
   );
