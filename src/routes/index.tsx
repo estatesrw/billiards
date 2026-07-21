@@ -371,3 +371,86 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
     </section>
   );
 }
+
+type HeroProduct = { id: string; slug: string; name: string; price_cents: number; image_url: string | null; badge: string | null };
+
+function HeroCarousel({ products, fallback }: { products: HeroProduct[]; fallback: string }) {
+  const slides: HeroProduct[] = products.length > 0 ? products : [
+    { id: "placeholder", slug: "", name: "Featured collection", price_cents: 0, image_url: fallback, badge: "Preview" },
+  ];
+  const [i, setI] = useState(0);
+  const count = slides.length;
+
+  useEffect(() => {
+    if (count <= 1) return;
+    const t = setInterval(() => setI((v) => (v + 1) % count), 5000);
+    return () => clearInterval(t);
+  }, [count]);
+
+  const go = (d: number) => setI((v) => (v + d + count) % count);
+  const active = slides[i];
+  const priceLabel = active.price_cents > 0 ? `$${(active.price_cents / 100).toLocaleString()}` : null;
+  const hasLink = active.slug !== "";
+
+  return (
+    <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/9] md:aspect-[16/8] shadow-luxe bg-[var(--ink)]">
+      {slides.map((s, idx) => (
+        <img
+          key={s.id}
+          src={s.image_url || fallback}
+          alt={s.name}
+          loading={idx === 0 ? "eager" : "lazy"}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0"}`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
+
+      {/* Slide info */}
+      <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 right-6 md:right-auto text-[var(--ivory)] flex items-end justify-between gap-6 flex-wrap">
+        <div>
+          {active.badge && <div className="text-[10px] uppercase tracking-[0.4em] text-gold">{active.badge}</div>}
+          <div className="font-display text-2xl md:text-4xl mt-2">{active.name}</div>
+          {priceLabel && <div className="mt-1 text-sm text-[var(--ivory)]/80">{priceLabel}</div>}
+        </div>
+        {hasLink && (
+          <Link
+            to="/shop/$slug"
+            params={{ slug: active.slug }}
+            className="inline-flex items-center gap-2 px-5 py-3 pill bg-gold-gradient text-[var(--ink)] text-xs uppercase tracking-[0.3em] hover:opacity-90 transition"
+          >
+            Shop now <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
+      </div>
+
+      {count > 1 && (
+        <>
+          <button
+            onClick={() => go(-1)}
+            aria-label="Previous product"
+            className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => go(1)}
+            aria-label="Next product"
+            className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <div className="absolute top-4 right-4 flex gap-1.5">
+            {slides.map((s, idx) => (
+              <button
+                key={s.id}
+                onClick={() => setI(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-gold" : "w-1.5 bg-[var(--ivory)]/50"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
