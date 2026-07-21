@@ -740,10 +740,6 @@ function Admin() {
         </section>
       )}
 
-      {tab === "settings" && settingsDraft && (
-        null
-      )}
-      {false}
       {tab === "hero" && (
         <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
           <div className="border hairline rounded-3xl bg-card p-6">
