@@ -62,6 +62,10 @@ type HomeProject = {
   id: string; name: string; category: string | null; image_url: string;
   sort_order: number; is_published: boolean;
 };
+type HeroSlide = {
+  id: string; image_url: string; label: string; link_url: string | null;
+  sort_order: number; is_published: boolean;
+};
 
 const EMPTY: Omit<Product, "id"> = {
   slug: "",
@@ -81,6 +85,7 @@ const EMPTY: Omit<Product, "id"> = {
 const EMPTY_TESTI: Omit<Testimonial, "id"> = { quote: "", author_name: "", author_role: "", sort_order: 0, is_published: true };
 const EMPTY_FAQ: Omit<Faq, "id"> = { category: "General", question: "", answer: "", sort_order: 0, is_published: true };
 const EMPTY_HPROJ: Omit<HomeProject, "id"> = { name: "", category: "", image_url: "", sort_order: 0, is_published: true };
+const EMPTY_HERO: Omit<HeroSlide, "id"> = { image_url: "", label: "", link_url: "/shop", sort_order: 0, is_published: true };
 
 const EMPTY_SERVICE: Omit<Service, "id"> = {
   title: "", description: "", price_cents: 0, currency: "USD",
@@ -90,7 +95,7 @@ const EMPTY_GALLERY: Omit<GalleryItem, "id"> = {
   image_url: "", caption: "", span: "", sort_order: 0, is_published: true,
 };
 
-type Tab = "products" | "services" | "gallery" | "orders" | "home" | "settings";
+type Tab = "products" | "services" | "gallery" | "orders" | "home" | "hero" | "settings";
 
 function Admin() {
   const qc = useQueryClient();
@@ -102,6 +107,7 @@ function Admin() {
   const [testiDraft, setTestiDraft] = useState<Omit<Testimonial, "id"> | Testimonial>(EMPTY_TESTI);
   const [faqDraft, setFaqDraft] = useState<Omit<Faq, "id"> | Faq>(EMPTY_FAQ);
   const [hprojDraft, setHprojDraft] = useState<Omit<HomeProject, "id"> | HomeProject>(EMPTY_HPROJ);
+  const [heroDraft, setHeroDraft] = useState<Omit<HeroSlide, "id"> | HeroSlide>(EMPTY_HERO);
   const [settingsDraft, setSettingsDraft] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
@@ -191,6 +197,14 @@ function Admin() {
       return data as HomeProject[];
     },
   });
+  const { data: heroSlides = [] } = useQuery<HeroSlide[]>({
+    queryKey: ["admin", "hero_slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order");
+      if (error) throw error;
+      return data as HeroSlide[];
+    },
+  });
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ["admin", "site_settings"],
     queryFn: async () => {
@@ -245,6 +259,21 @@ function Admin() {
   const delHproj = useMutation({
     mutationFn: async (id: string) => { const { error } = await supabase.from("home_projects").delete().eq("id", id); if (error) throw error; },
     onSuccess: () => { toast.success("Deleted."); invalidate("projects"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const upsertHero = useMutation({
+    mutationFn: async (h: Omit<HeroSlide, "id"> | HeroSlide) => {
+      const payload = { ...h, link_url: h.link_url || null };
+      if ("id" in h && h.id) { const { error } = await supabase.from("hero_slides").update(payload).eq("id", h.id); if (error) throw error; }
+      else { const { error } = await supabase.from("hero_slides").insert(payload); if (error) throw error; }
+    },
+    onSuccess: () => { toast.success("Saved."); setHeroDraft(EMPTY_HERO); invalidate("hero_slides"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delHero = useMutation({
+    mutationFn: async (id: string) => { const { error } = await supabase.from("hero_slides").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { toast.success("Deleted."); invalidate("hero_slides"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -385,7 +414,7 @@ function Admin() {
       <PageHeader eyebrow="Admin" title="Content manager" sub="Manage products, services, gallery and orders." />
       <section className="container-lux pb-6">
         <div className="flex flex-wrap gap-2">
-          {(["products","services","gallery","home","orders","settings"] as Tab[]).map((k) => (
+          {(["products","services","gallery","hero","home","orders","settings"] as Tab[]).map((k) => (
             <button key={k} onClick={() => setTab(k)} className={`px-4 py-2 pill text-xs uppercase tracking-widest ${tab===k?"bg-[var(--ink)] text-[var(--ivory)]":"border hairline hover:bg-secondary"}`}>{k}</button>
           ))}
         </div>
