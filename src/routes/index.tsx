@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { heroTable as heroImg, productPool, fallbackProduct } from "@/lib/images";
@@ -25,7 +25,7 @@ function Home() {
         .eq("is_published", true)
         .eq("is_featured", true)
         .order("created_at")
-        .limit(4);
+        .limit(8);
       if (error) throw error;
       return data ?? [];
     },
@@ -94,48 +94,31 @@ function Home() {
           <div className="max-w-5xl animate-lux-in">
             <div className="flex items-center gap-4">
               <span className="font-script text-gold text-4xl md:text-5xl -rotate-6 inline-block">hello,</span>
-              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">{t("hero.eyebrow")}</span>
+              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">shop the collection</span>
             </div>
-            <h1 className="mt-4 font-display text-[3rem] md:text-[7rem] leading-[0.95] tracking-tight">
-              {t("hero.title.a")}<span className="text-gold">.</span>
-              <br />
-              <span className="text-muted-foreground">{t("hero.title.b")}</span>
+            <h1 className="mt-4 font-display text-[2.75rem] md:text-[5.5rem] leading-[0.95] tracking-tight">
+              Play in style<span className="text-gold">.</span>
             </h1>
-            <div className="mt-10 grid md:grid-cols-[1fr_auto] gap-8 items-end">
-              <p className="max-w-xl text-lg text-muted-foreground">{t("hero.sub")}</p>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  to="/shop"
-                  className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
-                >
-                  {t("cta.shop")}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
-                >
-                  {t("cta.contact")}
-                </Link>
-              </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/shop"
+                className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {t("cta.shop")}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
+              >
+                {t("cta.contact")}
+              </Link>
             </div>
           </div>
 
-          {/* Hero image plate */}
-          <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/8] shadow-luxe">
-            <img
-              src={heroImg}
-              alt="Luxury billiards table in a dim-lit private lounge"
-              width={1920}
-              height={1280}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-            <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 text-[var(--ivory)]">
-              <div className="text-[10px] uppercase tracking-[0.4em] text-gold">Signature</div>
-              <div className="font-display text-2xl md:text-4xl mt-2">Regal Pro — 8ft slate</div>
-            </div>
-          </div>
+          {/* Hero product carousel */}
+          <HeroCarousel products={featured} fallback={heroImg} />
 
           {/* Stat strip */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
@@ -386,5 +369,88 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
         </div>
       </div>
     </section>
+  );
+}
+
+type HeroProduct = { id: string; slug: string; name: string; price_cents: number; image_url: string | null; badge: string | null };
+
+function HeroCarousel({ products, fallback }: { products: HeroProduct[]; fallback: string }) {
+  const slides: HeroProduct[] = products.length > 0 ? products : [
+    { id: "placeholder", slug: "", name: "Featured collection", price_cents: 0, image_url: fallback, badge: "Preview" },
+  ];
+  const [i, setI] = useState(0);
+  const count = slides.length;
+
+  useEffect(() => {
+    if (count <= 1) return;
+    const t = setInterval(() => setI((v) => (v + 1) % count), 5000);
+    return () => clearInterval(t);
+  }, [count]);
+
+  const go = (d: number) => setI((v) => (v + d + count) % count);
+  const active = slides[i];
+  const priceLabel = active.price_cents > 0 ? `$${(active.price_cents / 100).toLocaleString()}` : null;
+  const hasLink = active.slug !== "";
+
+  return (
+    <div className="mt-14 relative rounded-[2rem] overflow-hidden aspect-[16/9] md:aspect-[16/8] shadow-luxe bg-[var(--ink)]">
+      {slides.map((s, idx) => (
+        <img
+          key={s.id}
+          src={s.image_url || fallback}
+          alt={s.name}
+          loading={idx === 0 ? "eager" : "lazy"}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0"}`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
+
+      {/* Slide info */}
+      <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 right-6 md:right-auto text-[var(--ivory)] flex items-end justify-between gap-6 flex-wrap">
+        <div>
+          {active.badge && <div className="text-[10px] uppercase tracking-[0.4em] text-gold">{active.badge}</div>}
+          <div className="font-display text-2xl md:text-4xl mt-2">{active.name}</div>
+          {priceLabel && <div className="mt-1 text-sm text-[var(--ivory)]/80">{priceLabel}</div>}
+        </div>
+        {hasLink && (
+          <Link
+            to="/shop/$slug"
+            params={{ slug: active.slug }}
+            className="inline-flex items-center gap-2 px-5 py-3 pill bg-gold-gradient text-[var(--ink)] text-xs uppercase tracking-[0.3em] hover:opacity-90 transition"
+          >
+            Shop now <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
+      </div>
+
+      {count > 1 && (
+        <>
+          <button
+            onClick={() => go(-1)}
+            aria-label="Previous product"
+            className="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => go(1)}
+            aria-label="Next product"
+            className="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-[var(--ivory)]/90 text-[var(--ink)] grid place-items-center hover:bg-[var(--ivory)] transition"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <div className="absolute top-4 right-4 flex gap-1.5">
+            {slides.map((s, idx) => (
+              <button
+                key={s.id}
+                onClick={() => setI(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-gold" : "w-1.5 bg-[var(--ivory)]/50"}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
