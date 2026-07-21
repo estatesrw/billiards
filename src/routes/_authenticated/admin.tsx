@@ -741,6 +741,50 @@ function Admin() {
       )}
 
       {tab === "settings" && settingsDraft && (
+        null
+      )}
+      {false}
+      {tab === "hero" && (
+        <section className="container-lux pb-24 grid gap-12 lg:grid-cols-[380px_1fr]">
+          <div className="border hairline rounded-3xl bg-card p-6">
+            <div className="font-display text-xl">{"id" in heroDraft && heroDraft.id ? "Edit hero slide" : "New hero slide"}</div>
+            <p className="mt-1 text-xs text-muted-foreground">Cards shown in the fanned carousel at the top of the home page.</p>
+            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertHero.mutate(heroDraft); }}>
+              <Field label="Image URL"><input required value={heroDraft.image_url} onChange={(e) => setHeroDraft({ ...heroDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <Field label="Label (shown on card)"><input required value={heroDraft.label} onChange={(e) => setHeroDraft({ ...heroDraft, label: e.target.value })} className={inp} placeholder="Luxury Pool Tables" /></Field>
+              <Field label="Link (optional)"><input value={heroDraft.link_url ?? ""} onChange={(e) => setHeroDraft({ ...heroDraft, link_url: e.target.value })} className={inp} placeholder="/shop" /></Field>
+              <Field label="Sort order"><input type="number" value={heroDraft.sort_order} onChange={(e) => setHeroDraft({ ...heroDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={heroDraft.is_published} onChange={(e) => setHeroDraft({ ...heroDraft, is_published: e.target.checked })} /> Published (visible in carousel)</label>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" disabled={upsertHero.isPending} className="inline-flex items-center gap-2 px-5 py-3 pill bg-[var(--ink)] text-[var(--ivory)] text-xs uppercase tracking-widest hover:bg-gold-gradient hover:text-[var(--ink)] disabled:opacity-60"><Save className="w-4 h-4" /> {"id" in heroDraft && heroDraft.id ? "Update" : "Create"}</button>
+                {"id" in heroDraft && heroDraft.id && <button type="button" onClick={() => setHeroDraft(EMPTY_HERO)} className="px-5 py-3 pill border hairline text-xs uppercase tracking-widest hover:bg-secondary">Cancel</button>}
+              </div>
+            </form>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">Hero slides · {heroSlides.length}</div>
+              <button onClick={() => setHeroDraft(EMPTY_HERO)} className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold hover:underline"><Plus className="w-3 h-3" /> New</button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {heroSlides.map((h) => (
+                <div key={h.id} className="border hairline rounded-2xl bg-card p-3">
+                  <div className="aspect-[3/4] rounded-xl bg-secondary overflow-hidden">
+                    {h.image_url && <img src={h.image_url} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <div className="mt-2 font-display text-lg truncate">{h.label}</div>
+                  <div className="text-xs text-muted-foreground truncate">{h.link_url || "no link"} · order {h.sort_order} · {h.is_published ? "live" : "hidden"}</div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => setHeroDraft(h)} className="flex-1 px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
+                    <button onClick={() => { if (confirm("Delete?")) delHero.mutate(h.id); }} className="w-9 h-9 grid place-items-center pill border hairline hover:bg-destructive hover:text-[var(--ivory)] hover:border-transparent"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      {tab === "settings" && settingsDraft && (
         <section className="container-lux pb-24 max-w-3xl">
           <form onSubmit={(e) => { e.preventDefault(); saveSettings.mutate(settingsDraft); }} className="border hairline rounded-3xl bg-card p-8 space-y-4">
             <div className="font-display text-2xl">WhatsApp & site settings</div>
