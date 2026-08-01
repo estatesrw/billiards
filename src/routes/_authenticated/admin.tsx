@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { toast } from "sonner";
 import { Trash2, Plus, Save, ShieldCheck } from "lucide-react";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — B Trader Elite Billiards" }] }),
@@ -451,9 +452,7 @@ function Admin() {
                 <input type="number" min={0} value={draft.stock} onChange={(e) => setDraft({ ...draft, stock: Number(e.target.value) })} className={inp} />
               </Field>
             </div>
-            <Field label="Image URL">
-              <input value={draft.image_url ?? ""} onChange={(e) => setDraft({ ...draft, image_url: e.target.value })} className={inp} placeholder="https://..." />
-            </Field>
+            <ImageUploadField label="Product image" value={draft.image_url ?? ""} onChange={(url) => setDraft({ ...draft, image_url: url })} />
             <Field label="Badge (optional)">
               <input value={draft.badge ?? ""} onChange={(e) => setDraft({ ...draft, badge: e.target.value })} className={inp} placeholder="New, Pro..." />
             </Field>
@@ -527,7 +526,7 @@ function Admin() {
                 <Field label="Price (USD)"><input type="number" min={0} step="0.01" value={svcDraft.price_cents / 100} onChange={(e) => setSvcDraft({ ...svcDraft, price_cents: Math.round(Number(e.target.value) * 100) })} className={inp} /></Field>
                 <Field label="Sort order"><input type="number" value={svcDraft.sort_order} onChange={(e) => setSvcDraft({ ...svcDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
               </div>
-              <Field label="Image URL"><input value={svcDraft.image_url ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <ImageUploadField label="Service image" value={svcDraft.image_url ?? ""} onChange={(url) => setSvcDraft({ ...svcDraft, image_url: url })} />
               <Field label="Icon (Wrench, Truck, Scissors, Sparkles, Hammer, Shield, Trophy, Star)"><input value={svcDraft.icon ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, icon: e.target.value })} className={inp} /></Field>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={svcDraft.is_published} onChange={(e) => setSvcDraft({ ...svcDraft, is_published: e.target.checked })} /> Published</label>
               <div className="flex gap-2 pt-2">
@@ -565,7 +564,7 @@ function Admin() {
           <div className="border hairline rounded-3xl bg-card p-6">
             <div className="font-display text-xl">{"id" in galDraft && galDraft.id ? "Edit item" : "New gallery item"}</div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertGal.mutate(galDraft); }}>
-              <Field label="Image URL"><input required value={galDraft.image_url} onChange={(e) => setGalDraft({ ...galDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <ImageUploadField label="Gallery image" required value={galDraft.image_url} onChange={(url) => setGalDraft({ ...galDraft, image_url: url })} />
               <Field label="Caption"><input value={galDraft.caption ?? ""} onChange={(e) => setGalDraft({ ...galDraft, caption: e.target.value })} className={inp} /></Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Grid span"><input value={galDraft.span ?? ""} onChange={(e) => setGalDraft({ ...galDraft, span: e.target.value })} className={inp} placeholder="row-span-2 or col-span-2" /></Field>
@@ -706,7 +705,7 @@ function Admin() {
               <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertHproj.mutate(hprojDraft); }}>
                 <Field label="Name"><input required value={hprojDraft.name} onChange={(e) => setHprojDraft({ ...hprojDraft, name: e.target.value })} className={inp} /></Field>
                 <Field label="Category"><input value={hprojDraft.category ?? ""} onChange={(e) => setHprojDraft({ ...hprojDraft, category: e.target.value })} className={inp} placeholder="Hotel, Bar, Club..." /></Field>
-                <Field label="Image URL"><input required value={hprojDraft.image_url} onChange={(e) => setHprojDraft({ ...hprojDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+                <ImageUploadField label="Project image" required value={hprojDraft.image_url} onChange={(url) => setHprojDraft({ ...hprojDraft, image_url: url })} />
                 <Field label="Sort order"><input type="number" value={hprojDraft.sort_order} onChange={(e) => setHprojDraft({ ...hprojDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={hprojDraft.is_published} onChange={(e) => setHprojDraft({ ...hprojDraft, is_published: e.target.checked })} /> Published</label>
                 <div className="flex gap-2 pt-2">
@@ -746,7 +745,7 @@ function Admin() {
             <div className="font-display text-xl">{"id" in heroDraft && heroDraft.id ? "Edit hero slide" : "New hero slide"}</div>
             <p className="mt-1 text-xs text-muted-foreground">Cards shown in the fanned carousel at the top of the home page.</p>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); upsertHero.mutate(heroDraft); }}>
-              <Field label="Image URL"><input required value={heroDraft.image_url} onChange={(e) => setHeroDraft({ ...heroDraft, image_url: e.target.value })} className={inp} placeholder="https://..." /></Field>
+              <ImageUploadField label="Slide image" required value={heroDraft.image_url} onChange={(url) => setHeroDraft({ ...heroDraft, image_url: url })} />
               <Field label="Label (shown on card)"><input required value={heroDraft.label} onChange={(e) => setHeroDraft({ ...heroDraft, label: e.target.value })} className={inp} placeholder="Luxury Pool Tables" /></Field>
               <Field label="Link (optional)"><input value={heroDraft.link_url ?? ""} onChange={(e) => setHeroDraft({ ...heroDraft, link_url: e.target.value })} className={inp} placeholder="/shop" /></Field>
               <Field label="Sort order"><input type="number" value={heroDraft.sort_order} onChange={(e) => setHeroDraft({ ...heroDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>

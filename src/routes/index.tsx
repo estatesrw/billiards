@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -101,51 +101,36 @@ function Home() {
         </div>
       )}
 
-      {/* Hero */}
-      <section className="relative pt-16 md:pt-24 pb-12 overflow-hidden">
-        <div className="container-lux relative z-10">
-          <div className="max-w-5xl animate-lux-in">
-            <div className="flex items-center gap-4">
-              <span className="font-script text-gold text-4xl md:text-5xl -rotate-6 inline-block">hello,</span>
-              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">shop the collection</span>
-            </div>
-            <h1 className="mt-4 font-display text-[2.75rem] md:text-[5.5rem] leading-[0.95] tracking-tight">
-              Play in style<span className="text-gold">.</span>
+      {/* Hero — green/black, carousel first */}
+      <section className="relative overflow-hidden bg-[#0B3B26] text-[#F3F6F2]">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(120% 90% at 50% 0%, rgba(24,110,68,0.55) 0%, rgba(11,59,38,0) 55%), linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)" }}
+        />
+        <div className="container-lux relative z-10 pt-14 md:pt-20 pb-16 md:pb-24">
+          {/* Carousel first */}
+          <HeroFanCarousel slides={heroSlides} />
+
+          <div className="mt-12 md:mt-14 text-center animate-lux-in">
+            <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.95] tracking-tight">
+              Play in style<span className="text-[#7CE0A6]">.</span>
             </h1>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/shop"
-                className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+                className="group inline-flex items-center gap-3 px-7 py-4 pill bg-black text-[#F3F6F2] text-sm hover:bg-[#7CE0A6] hover:text-black transition-all"
               >
                 <ShoppingBag className="w-4 h-4" />
-                {t("cta.shop")}
+                Shop Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
+                className="inline-flex items-center gap-3 px-7 py-4 pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition-all text-sm"
               >
-                {t("cta.contact")}
+                Contact Us
               </Link>
             </div>
-          </div>
-
-          {/* Hero fanned carousel */}
-          <HeroFanCarousel slides={heroSlides} />
-
-          {/* Stat strip */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
-            {[
-              { k: "12+", v: "Years of craft" },
-              { k: "800+", v: "Tables installed" },
-              { k: "48h", v: "Kigali delivery" },
-              { k: "2 yr", v: "Warranty" },
-            ].map((s) => (
-              <div key={s.k}>
-                <div className="font-display text-5xl">{s.k}</div>
-                <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.v}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -388,10 +373,18 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
 type HeroSlide = { id: string; image_url: string; label: string; link_url: string | null };
 
 function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
-  if (slides.length === 0) return null;
   const [offset, setOffset] = useState(0);
+  const [paused, setPaused] = useState(false);
   const count = slides.length;
-  // build fan of up to 7 visible cards centered around `offset`
+
+  useEffect(() => {
+    if (count < 2 || paused) return;
+    const id = setInterval(() => setOffset((v) => (v + 1) % count), 3500);
+    return () => clearInterval(id);
+  }, [count, paused]);
+
+  if (count === 0) return null;
+
   const visibleCount = Math.min(7, count);
   const half = Math.floor(visibleCount / 2);
   const visible = Array.from({ length: visibleCount }, (_, k) => {
@@ -402,19 +395,20 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
   const shift = (d: number) => setOffset((v) => (v + d + count) % count);
 
   return (
-    <div className="mt-16 md:mt-20 relative">
-      <div
-        className="relative mx-auto"
-        style={{ height: "clamp(320px, 42vw, 520px)", perspective: "1200px" }}
-      >
+    <div
+      className="relative"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative mx-auto w-full" style={{ height: "clamp(330px, 40vw, 560px)", perspective: "1400px" }}>
         {visible.map(({ slide, rel }) => {
           const abs = Math.abs(rel);
-          const rotate = rel * 8; // degrees
-          const translateX = rel * 15; // %
-          const translateY = abs * abs * 6; // arc downwards on outer
-          const scale = 1 - abs * 0.06;
+          const rotate = rel * 7;
+          const translateX = rel * 26; // wider fan
+          const translateY = abs * abs * 7;
+          const scale = 1 - abs * 0.05;
           const z = 100 - abs;
-          const opacity = abs > 3 ? 0.35 : 1;
+          const opacity = abs > 3 ? 0.3 : 1;
           const isCenter = rel === 0;
           const inner = (
             <>
@@ -424,17 +418,17 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
                 loading={isCenter ? "eager" : "lazy"}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 whitespace-nowrap px-4 py-1.5 pill bg-[var(--ivory)] text-[var(--ink)] text-[10px] md:text-xs uppercase tracking-widest shadow-luxe">
+              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 whitespace-nowrap px-4 py-1.5 pill bg-black/85 text-[#F3F6F2] text-[10px] md:text-xs uppercase tracking-widest">
                 {slide.label}
               </div>
             </>
           );
           const cardCls =
-            "absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-[var(--ink)] transition-all duration-500 ease-out ring-1 ring-black/5";
+            "absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-black transition-all duration-700 ease-out ring-1 ring-black/20";
           const style: React.CSSProperties = {
-            width: "clamp(180px, 22vw, 300px)",
-            height: "clamp(240px, 30vw, 400px)",
+            width: "clamp(200px, 26vw, 380px)",
+            height: "clamp(260px, 32vw, 460px)",
             transform: `translate(-50%, -50%) translateX(${translateX}%) translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
             zIndex: z,
             opacity,
@@ -455,17 +449,24 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
           <button
             onClick={() => shift(-1)}
             aria-label="Previous"
-            className="w-10 h-10 grid place-items-center pill border hairline text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition"
+            className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
           >
             ←
           </button>
-          <div className="text-xs uppercase tracking-widest text-muted-foreground">
-            {((offset % count) + count) % count + 1} / {count}
+          <div className="flex items-center gap-1.5">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => setOffset(i)}
+                aria-label={`Go to ${s.label}`}
+                className={`h-1.5 rounded-full transition-all ${i === ((offset % count) + count) % count ? "w-6 bg-[#7CE0A6]" : "w-1.5 bg-[#F3F6F2]/40"}`}
+              />
+            ))}
           </div>
           <button
             onClick={() => shift(1)}
             aria-label="Next"
-            className="w-10 h-10 grid place-items-center pill border hairline text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition"
+            className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
           >
             →
           </button>
