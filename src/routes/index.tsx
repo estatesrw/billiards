@@ -101,51 +101,36 @@ function Home() {
         </div>
       )}
 
-      {/* Hero */}
-      <section className="relative pt-16 md:pt-24 pb-12 overflow-hidden">
-        <div className="container-lux relative z-10">
-          <div className="max-w-5xl animate-lux-in">
-            <div className="flex items-center gap-4">
-              <span className="font-script text-gold text-4xl md:text-5xl -rotate-6 inline-block">hello,</span>
-              <span className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">shop the collection</span>
-            </div>
-            <h1 className="mt-4 font-display text-[2.75rem] md:text-[5.5rem] leading-[0.95] tracking-tight">
-              Play in style<span className="text-gold">.</span>
+      {/* Hero — green/black, carousel first */}
+      <section className="relative overflow-hidden bg-[#0B3B26] text-[#F3F6F2]">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(120% 90% at 50% 0%, rgba(24,110,68,0.55) 0%, rgba(11,59,38,0) 55%), linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)" }}
+        />
+        <div className="container-lux relative z-10 pt-14 md:pt-20 pb-16 md:pb-24">
+          {/* Carousel first */}
+          <HeroFanCarousel slides={heroSlides} />
+
+          <div className="mt-12 md:mt-14 text-center animate-lux-in">
+            <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.95] tracking-tight">
+              Play in style<span className="text-[#7CE0A6]">.</span>
             </h1>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/shop"
-                className="group inline-flex items-center gap-3 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all"
+                className="group inline-flex items-center gap-3 px-7 py-4 pill bg-black text-[#F3F6F2] text-sm hover:bg-[#7CE0A6] hover:text-black transition-all"
               >
                 <ShoppingBag className="w-4 h-4" />
-                {t("cta.shop")}
+                Shop Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-3 px-6 py-4 pill border hairline text-foreground hover:bg-secondary transition-all text-sm"
+                className="inline-flex items-center gap-3 px-7 py-4 pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition-all text-sm"
               >
-                {t("cta.contact")}
+                Contact Us
               </Link>
             </div>
-          </div>
-
-          {/* Hero fanned carousel */}
-          <HeroFanCarousel slides={heroSlides} />
-
-          {/* Stat strip */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t hairline pt-10">
-            {[
-              { k: "12+", v: "Years of craft" },
-              { k: "800+", v: "Tables installed" },
-              { k: "48h", v: "Kigali delivery" },
-              { k: "2 yr", v: "Warranty" },
-            ].map((s) => (
-              <div key={s.k}>
-                <div className="font-display text-5xl">{s.k}</div>
-                <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.v}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
