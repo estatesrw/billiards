@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { productPool, fallbackProduct } from "@/lib/images";
@@ -92,16 +92,6 @@ function Home() {
 
   return (
     <PageShell>
-      {/* Promo banner */}
-      {settings?.promo_enabled && settings.promo_text && (
-        <div className="bg-gold-gradient text-[var(--ink)] overflow-hidden">
-          <div className="container-lux py-2.5 flex items-center justify-center gap-3 text-xs md:text-sm font-medium text-center">
-            <Sparkles className="w-4 h-4 shrink-0" />
-            <span>{settings.promo_text}</span>
-          </div>
-        </div>
-      )}
-
       {/* Hero — green/black, carousel first */}
       <section className="relative overflow-hidden bg-[#0B3B26] text-[#F3F6F2]">
         <div
@@ -195,7 +185,7 @@ function Home() {
               { icon: Truck, title: "Delivery & Moving", body: "Insured transport and relocation across Rwanda with white-glove handling." },
               { icon: Shield, title: "Refelting", body: "Championship-grade Simonis and Strachan cloth, expertly stretched." },
               { icon: Trophy, title: "Maintenance", body: "Annual service plans keeping cushions, pockets and cloth in peak form." },
-              { icon: Sparkles, title: "Repair", body: "Cushion replacement, rail work and full table restoration." },
+              { icon: title: "Repair", body: "Cushion replacement, rail work and full table restoration." },
               { icon: Star, title: "Custom Builds", body: "Bespoke finishes, brass inlays and cloth colors for signature spaces." },
             ].map((s) => (
               <div key={s.title} className="bg-background p-8 group hover:bg-cream-soft transition-colors">

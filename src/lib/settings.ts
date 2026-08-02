@@ -23,8 +23,8 @@ export async function fetchSettings(): Promise<SiteSettings> {
   return (
     (data as SiteSettings) ?? {
       id: "main",
-      whatsapp_number: "250794506387",
-      whatsapp_display: "+250 794 506 387",
+      whatsapp_number: "250793735430",
+      whatsapp_display: "+250 793 735 430",
       order_message_template: DEFAULT_TEMPLATE,
       promo_text: "",
       promo_enabled: true,

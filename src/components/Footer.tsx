@@ -15,7 +15,7 @@ export function Footer() {
           </p>
           <div className="mt-6 flex gap-4">
             <a href="#" className="w-10 h-10 grid place-items-center border hairline rounded-full hover:border-[var(--gold)] hover:text-gold transition-colors"><Instagram className="w-4 h-4" /></a>
-            <a href="#" className="w-10 h-10 grid place-items-center border hairline rounded-full hover:border-[var(--gold)] hover:text-gold transition-colors"><Facebook className="w-4 h-4" /></a>
+            <a href={SITE.facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="w-10 h-10 grid place-items-center border hairline rounded-full hover:border-[var(--gold)] hover:text-gold transition-colors"><Facebook className="w-4 h-4" /></a>
           </div>
         </div>
 
