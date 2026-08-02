@@ -11,7 +11,7 @@ export type SiteSettings = {
 };
 
 export const DEFAULT_TEMPLATE =
-  "New order request #{order_id}\n\nName: {full_name}\nPhone: {phone}\nAddress: {address}, {city}\n\n{items}\n\nSubtotal: ${subtotal}\n\nNotes: {notes}";
+  "New order request #{order_id}\n\nName: {full_name}\nPhone: {phone}\nAddress: {address}, {city}\n\n{items}\n\nSubtotal: {subtotal}\n\nNotes: {notes}";
 
 export async function fetchSettings(): Promise<SiteSettings> {
   const { data, error } = await supabase
