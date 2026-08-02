@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
 import { orderCartOnWhatsApp } from "@/lib/wa-order";
-import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — B Trader Elite Billiards" }] }),
