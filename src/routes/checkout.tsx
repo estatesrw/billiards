@@ -7,6 +7,8 @@ import { fetchSettings, renderTemplate, waLink, DEFAULT_TEMPLATE } from "@/lib/s
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
+import { orderCartOnWhatsApp } from "@/lib/wa-order";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — B Trader Elite Billiards" }] }),
@@ -112,7 +114,7 @@ function Checkout() {
           <p className="text-xs text-muted-foreground text-center">Payment on delivery or via bank transfer / mobile money — confirmed on WhatsApp.</p>
         </form>
 
-        <aside className="border hairline rounded-3xl bg-card p-6 h-fit">
+        <aside className="border hairline rounded-3xl bg-cream-soft p-6 h-fit">
           <div className="font-display text-xl">Your order</div>
           {items.length === 0 ? (
             <div className="mt-6 text-sm text-muted-foreground">Your cart is empty. <Link to="/shop" className="text-gold underline">Browse the collection</Link></div>
@@ -130,10 +132,28 @@ function Checkout() {
                   </div>
                 ))}
               </div>
-              <div className="mt-6 pt-4 border-t hairline flex justify-between items-center">
-                <span className="text-xs uppercase tracking-widest text-muted-foreground">Subtotal</span>
+              <dl className="mt-6 space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Subtotal</dt>
+                  <dd>{money(subtotal)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Shipping</dt>
+                  <dd>Free</dd>
+                </div>
+              </dl>
+              <div className="mt-5 pt-5 border-t hairline flex justify-between items-center">
+                <span className="font-display text-lg">Total</span>
                 <span className="font-display text-2xl">{money(subtotal)}</span>
               </div>
+              <button
+                type="button"
+                onClick={() => orderCartOnWhatsApp(items, subtotal)}
+                className="mt-6 w-full px-6 py-4 rounded-full border border-[#25D366] text-[#128C42] text-sm font-medium hover:bg-[#25D366]/10 transition-colors"
+              >
+                Order on WhatsApp
+              </button>
+              <p className="mt-2 text-[11px] text-muted-foreground text-center">Prefer chatting? Send this cart to us directly.</p>
             </>
           )}
         </aside>
