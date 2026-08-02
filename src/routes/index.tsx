@@ -185,7 +185,7 @@ function Home() {
               { icon: Truck, title: "Delivery & Moving", body: "Insured transport and relocation across Rwanda with white-glove handling." },
               { icon: Shield, title: "Refelting", body: "Championship-grade Simonis and Strachan cloth, expertly stretched." },
               { icon: Trophy, title: "Maintenance", body: "Annual service plans keeping cushions, pockets and cloth in peak form." },
-              { icon: title: "Repair", body: "Cushion replacement, rail work and full table restoration." },
+              { icon: Sparkles, title: "Repair", body: "Cushion replacement, rail work and full table restoration." },
               { icon: Star, title: "Custom Builds", body: "Bespoke finishes, brass inlays and cloth colors for signature spaces." },
             ].map((s) => (
               <div key={s.title} className="bg-background p-8 group hover:bg-cream-soft transition-colors">
