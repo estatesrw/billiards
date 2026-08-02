@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Heart, ShoppingBag, Star, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/shop/$slug")({
   head: ({ params }) => ({
@@ -72,7 +73,7 @@ function ProductDetail() {
               <Star className="w-3 h-3 fill-current" /> {Number(product.rating).toFixed(1)}
               <span className="text-muted-foreground">· {product.stock > 0 ? `${product.stock} in stock` : "Made to order"}</span>
             </div>
-            <div className="mt-6 font-display text-4xl">${(product.price_cents / 100).toLocaleString()}</div>
+            <div className="mt-6 font-display text-4xl">{money(product.price_cents)}</div>
             {product.description && <p className="mt-6 text-muted-foreground leading-relaxed">{product.description}</p>}
 
             <div className="mt-8 flex items-center gap-3">

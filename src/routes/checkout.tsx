@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchSettings, renderTemplate, waLink, DEFAULT_TEMPLATE } from "@/lib/settings";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — B Trader Elite Billiards" }] }),
@@ -36,7 +37,7 @@ function Checkout() {
         ...form,
         user_id: u.user?.id ?? null,
         subtotal_cents: subtotal,
-        currency: "USD",
+        currency: "RWF",
         channel: "whatsapp",
         status: "pending",
       }).select("id").single();
@@ -52,7 +53,7 @@ function Checkout() {
       );
       if (iErr) throw iErr;
 
-      const lines = items.map((i) => `• ${i.name} × ${i.quantity} — $${((i.price_cents * i.quantity) / 100).toLocaleString()}`).join("\n");
+      const lines = items.map((i) => `• ${i.name} × ${i.quantity} — ${money(i.price_cents * i.quantity)}`).join("\n");
       const msg = renderTemplate(settings.order_message_template || DEFAULT_TEMPLATE, {
         order_id: order.id.slice(0, 8),
         full_name: form.full_name,
@@ -61,7 +62,7 @@ function Checkout() {
         address: form.address,
         city: form.city,
         items: lines,
-        subtotal: (subtotal / 100).toLocaleString(),
+        subtotal: money(subtotal),
         notes: form.notes || "—",
       });
       const wa = waLink(settings.whatsapp_number, msg);
@@ -125,13 +126,13 @@ function Checkout() {
                       <div className="truncate">{i.name}</div>
                       <div className="text-xs text-muted-foreground">× {i.quantity}</div>
                     </div>
-                    <div className="text-sm">${((i.price_cents * i.quantity) / 100).toLocaleString()}</div>
+                    <div className="text-sm">{money(i.price_cents * i.quantity)}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-6 pt-4 border-t hairline flex justify-between items-center">
                 <span className="text-xs uppercase tracking-widest text-muted-foreground">Subtotal</span>
-                <span className="font-display text-2xl">${(subtotal / 100).toLocaleString()}</span>
+                <span className="font-display text-2xl">{money(subtotal)}</span>
               </div>
             </>
           )}

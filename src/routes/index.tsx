@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -149,7 +150,7 @@ function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {featured.map((p) => (
               <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
                 <div className="relative overflow-hidden aspect-[4/5] bg-secondary">
@@ -163,8 +164,8 @@ function Home() {
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div>
-                    <div className="font-display text-xl">{p.name}</div>
-                    <div className="text-sm text-muted-foreground">${(p.price_cents / 100).toLocaleString()}</div>
+                    <div className="font-display text-base md:text-xl">{p.name}</div>
+                    <div className="text-sm text-muted-foreground">{money(p.price_cents)}</div>
                   </div>
                   <div className="flex items-center gap-1 text-gold text-xs">
                     <Star className="w-3 h-3 fill-current" /> 4.9

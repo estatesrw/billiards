@@ -9,6 +9,7 @@ import { useWishlist } from "@/lib/wishlist";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -118,7 +119,7 @@ function Shop() {
 
         {isLoading && <div className="mt-12 text-center text-muted-foreground">Loading products…</div>}
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((p) => (
             <article key={p.id} className="group border hairline rounded-3xl overflow-hidden flex flex-col bg-card">
               <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
@@ -129,16 +130,16 @@ function Shop() {
                   </div>
                 )}
               </div>
-              <div className="p-5 flex-1 flex flex-col">
+              <div className="p-3 md:p-5 flex-1 flex flex-col">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                   {cats.find((c) => c.id === p.category_id)?.name ?? "Product"}
                 </div>
-                <h3 className="mt-2 font-display text-xl">{p.name}</h3>
+                <h3 className="mt-2 font-display text-base md:text-xl">{p.name}</h3>
                 <div className="mt-2 flex items-center gap-2 text-xs text-gold">
                   <Star className="w-3 h-3 fill-current" /> {Number(p.rating).toFixed(1)}
                 </div>
-                <div className="mt-auto pt-6 flex items-center justify-between">
-                  <div className="font-display text-2xl">${(p.price_cents / 100).toLocaleString()}</div>
+                <div className="mt-auto pt-4 md:pt-6 flex flex-wrap gap-2 items-center justify-between">
+                  <div className="font-display text-lg md:text-2xl">{money(p.price_cents)}</div>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => toggleWish({ id: p.id, slug: p.slug, name: p.name })}
