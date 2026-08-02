@@ -4,7 +4,6 @@ import { useCart } from "@/lib/cart";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
 import { orderCartOnWhatsApp } from "@/lib/wa-order";
-import { money } from "@/lib/money";
 
 export function CartDrawer() {
   const { items, open, setOpen, setQty, remove, subtotal, count } = useCart();
