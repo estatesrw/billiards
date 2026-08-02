@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
+import { orderCartOnWhatsApp } from "@/lib/wa-order";
 
 export function CartDrawer() {
   const { items, open, setOpen, setQty, remove, subtotal, count } = useCart();
@@ -32,7 +34,7 @@ export function CartDrawer() {
               <img src={i.image_url || fallbackImg} alt={i.name} className="w-20 h-20 object-cover rounded-xl bg-secondary" />
               <div className="flex-1 min-w-0">
                 <div className="font-display truncate">{i.name}</div>
-                <div className="text-xs text-muted-foreground">${(i.price_cents / 100).toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">{money(i.price_cents)}</div>
                 <div className="mt-2 flex items-center gap-2">
                   <button onClick={() => setQty(i.id, i.quantity - 1)} className="w-7 h-7 grid place-items-center pill border hairline"><Minus className="w-3 h-3" /></button>
                   <span className="text-sm w-6 text-center">{i.quantity}</span>
@@ -46,12 +48,21 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t hairline p-5 space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground uppercase tracking-widest text-xs">Subtotal</span>
-              <span className="font-display text-2xl">${(subtotal / 100).toLocaleString()}</span>
+              <span className="text-muted-foreground uppercase tracking-widest text-xs">Total</span>
+              <span className="font-display text-2xl">{money(subtotal)}</span>
             </div>
-            <Link to="/checkout" onClick={() => setOpen(false)} className="block text-center px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all">
+            <Link to="/cart" onClick={() => setOpen(false)} className="block text-center px-6 py-4 pill bg-gold-gradient text-[var(--ink)] uppercase text-xs tracking-[0.3em] font-medium">
+              View cart
+            </Link>
+            <Link to="/checkout" onClick={() => setOpen(false)} className="block text-center px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:opacity-90 transition-all">
               Checkout
             </Link>
+            <button
+              onClick={() => orderCartOnWhatsApp(items, subtotal)}
+              className="w-full px-6 py-4 pill border border-[#25D366] text-[#128C42] text-sm font-medium hover:bg-[#25D366]/10 transition-colors"
+            >
+              Order on WhatsApp
+            </button>
           </div>
         )}
       </aside>

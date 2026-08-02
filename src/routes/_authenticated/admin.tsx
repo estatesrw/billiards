@@ -6,6 +6,7 @@ import { PageShell, PageHeader } from "@/components/PageShell";
 import { toast } from "sonner";
 import { Trash2, Plus, Save, ShieldCheck } from "lucide-react";
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — B Trader Elite Billiards" }] }),
@@ -74,7 +75,7 @@ const EMPTY: Omit<Product, "id"> = {
   description: "",
   category_id: null,
   price_cents: 0,
-  currency: "USD",
+  currency: "RWF",
   image_url: "",
   stock: 0,
   rating: 5,
@@ -89,7 +90,7 @@ const EMPTY_HPROJ: Omit<HomeProject, "id"> = { name: "", category: "", image_url
 const EMPTY_HERO: Omit<HeroSlide, "id"> = { image_url: "", label: "", link_url: "/shop", sort_order: 0, is_published: true };
 
 const EMPTY_SERVICE: Omit<Service, "id"> = {
-  title: "", description: "", price_cents: 0, currency: "USD",
+  title: "", description: "", price_cents: 0, currency: "RWF",
   image_url: "", icon: "Sparkles", sort_order: 0, is_published: true,
 };
 const EMPTY_GALLERY: Omit<GalleryItem, "id"> = {
@@ -445,7 +446,7 @@ function Admin() {
               </select>
             </Field>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Price (USD)">
+              <Field label="Price (RWF)">
                 <input type="number" min={0} step="0.01" value={draft.price_cents / 100} onChange={(e) => setDraft({ ...draft, price_cents: Math.round(Number(e.target.value) * 100) })} className={inp} />
               </Field>
               <Field label="Stock">
@@ -500,7 +501,7 @@ function Admin() {
                   <div className="flex-1 min-w-0">
                     <div className="font-display text-lg truncate">{p.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      ${(p.price_cents / 100).toLocaleString()} · stock {p.stock} · {p.is_published ? "live" : "draft"}
+                      {money(p.price_cents)} · stock {p.stock} · {p.is_published ? "live" : "draft"}
                     </div>
                   </div>
                   <button onClick={() => setDraft(p)} className="px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
@@ -523,7 +524,7 @@ function Admin() {
               <Field label="Title"><input required value={svcDraft.title} onChange={(e) => setSvcDraft({ ...svcDraft, title: e.target.value })} className={inp} /></Field>
               <Field label="Description"><textarea rows={3} value={svcDraft.description ?? ""} onChange={(e) => setSvcDraft({ ...svcDraft, description: e.target.value })} className={inp} /></Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Price (USD)"><input type="number" min={0} step="0.01" value={svcDraft.price_cents / 100} onChange={(e) => setSvcDraft({ ...svcDraft, price_cents: Math.round(Number(e.target.value) * 100) })} className={inp} /></Field>
+                <Field label="Price (RWF)"><input type="number" min={0} step="0.01" value={svcDraft.price_cents / 100} onChange={(e) => setSvcDraft({ ...svcDraft, price_cents: Math.round(Number(e.target.value) * 100) })} className={inp} /></Field>
                 <Field label="Sort order"><input type="number" value={svcDraft.sort_order} onChange={(e) => setSvcDraft({ ...svcDraft, sort_order: Number(e.target.value) })} className={inp} /></Field>
               </div>
               <ImageUploadField label="Service image" value={svcDraft.image_url ?? ""} onChange={(url) => setSvcDraft({ ...svcDraft, image_url: url })} />
@@ -548,7 +549,7 @@ function Admin() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-display text-lg truncate">{s.title}</div>
-                    <div className="text-xs text-muted-foreground">${(s.price_cents / 100).toLocaleString()} · order {s.sort_order} · {s.is_published ? "live" : "hidden"}</div>
+                    <div className="text-xs text-muted-foreground">{money(s.price_cents)} · order {s.sort_order} · {s.is_published ? "live" : "hidden"}</div>
                   </div>
                   <button onClick={() => setSvcDraft(s)} className="px-3 py-2 pill border hairline text-xs hover:bg-secondary">Edit</button>
                   <button onClick={() => { if (confirm("Delete this service?")) delSvc.mutate(s.id); }} className="w-9 h-9 grid place-items-center pill border hairline hover:bg-destructive hover:text-[var(--ivory)] hover:border-transparent"><Trash2 className="w-4 h-4" /></button>
@@ -612,7 +613,7 @@ function Admin() {
                   <div className="text-xs text-muted-foreground">{o.phone} · {o.city} · {new Date(o.created_at).toLocaleString()}</div>
                   <div className="text-xs text-muted-foreground">#{o.id.slice(0, 8)}</div>
                 </div>
-                <div className="font-display text-xl">${(o.subtotal_cents / 100).toLocaleString()}</div>
+                <div className="font-display text-xl">{money(o.subtotal_cents)}</div>
                 <select value={o.status} onChange={(e) => setOrderStatus.mutate({ id: o.id, status: e.target.value })} className={inp + " w-auto"}>
                   {["pending","confirmed","paid","shipped","delivered","cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>

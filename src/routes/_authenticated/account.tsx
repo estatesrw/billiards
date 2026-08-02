@@ -5,6 +5,7 @@ import { PageShell, PageHeader } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, Package, ShieldCheck, Trash2 } from "lucide-react";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Account — B Trader Elite Billiards" }] }),
@@ -97,12 +98,12 @@ function Account() {
                       </div>
                       <div className="text-right">
                         <div className="text-[10px] uppercase tracking-widest px-3 py-1 pill bg-secondary inline-block">{o.status}</div>
-                        <div className="mt-1 font-display text-2xl">${(o.subtotal_cents / 100).toLocaleString()}</div>
+                        <div className="mt-1 font-display text-2xl">{money(o.subtotal_cents)}</div>
                       </div>
                     </div>
                     <ul className="mt-4 text-sm text-muted-foreground space-y-1">
                       {o.order_items.map((it, i) => (
-                        <li key={i}>{it.name} × {it.quantity} — ${((it.unit_price_cents * it.quantity) / 100).toLocaleString()}</li>
+                        <li key={i}>{it.name} × {it.quantity} — {money(it.unit_price_cents * it.quantity)}</li>
                       ))}
                     </ul>
                   </div>
@@ -118,7 +119,7 @@ function Account() {
                   <img src={w.product.image_url || fallbackImg} alt="" className="w-16 h-16 rounded-xl object-cover bg-secondary" />
                   <div className="flex-1 min-w-0">
                     <Link to="/shop/$slug" params={{ slug: w.product.slug }} className="font-display truncate hover:text-gold">{w.product.name}</Link>
-                    <div className="text-xs text-muted-foreground">${(w.product.price_cents / 100).toLocaleString()}</div>
+                    <div className="text-xs text-muted-foreground">{money(w.product.price_cents)}</div>
                   </div>
                   <button onClick={() => removeWish(w.id)} className="w-9 h-9 grid place-items-center pill hover:bg-destructive hover:text-[var(--ivory)]"><Trash2 className="w-4 h-4" /></button>
                 </div>

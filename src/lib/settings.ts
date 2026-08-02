@@ -11,7 +11,7 @@ export type SiteSettings = {
 };
 
 export const DEFAULT_TEMPLATE =
-  "New order request #{order_id}\n\nName: {full_name}\nPhone: {phone}\nAddress: {address}, {city}\n\n{items}\n\nSubtotal: ${subtotal}\n\nNotes: {notes}";
+  "New order request #{order_id}\n\nName: {full_name}\nPhone: {phone}\nAddress: {address}, {city}\n\n{items}\n\nSubtotal: {subtotal}\n\nNotes: {notes}";
 
 export async function fetchSettings(): Promise<SiteSettings> {
   const { data, error } = await supabase
@@ -23,8 +23,8 @@ export async function fetchSettings(): Promise<SiteSettings> {
   return (
     (data as SiteSettings) ?? {
       id: "main",
-      whatsapp_number: "250794506387",
-      whatsapp_display: "+250 794 506 387",
+      whatsapp_number: "250793735430",
+      whatsapp_display: "+250 793 735 430",
       order_message_template: DEFAULT_TEMPLATE,
       promo_text: "",
       promo_enabled: true,

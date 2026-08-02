@@ -1,13 +1,13 @@
 export const SITE = {
   name: "B Trader Elite Billiards",
   short: "B Trader Elite",
-  whatsapp: "250794506387",
-  whatsappDisplay: "+250 794 506 387",
-  phone: "+250 794 506 387",
+  whatsapp: "250793735430",
+  whatsappDisplay: "+250 793 735 430",
+  phone: "+250 793 735 430",
   email: "billiards@gmail.com",
-  address: "Norrsken House, KN 78 St, Kigali, Rwanda",
-  mapsEmbed:
-    "https://www.google.com/maps?q=Norrsken%20House%20Kigali&output=embed",
+  address: "KN 2 St, Kigali, Rwanda",
+  facebook: "https://www.facebook.com/share/1918oKHG2J/?mibextid=wwXIfr",
+  mapsEmbed: "https://www.google.com/maps?q=KN%202%20St%20Kigali%20Rwanda&output=embed",
   waLink: (msg?: string) =>
-    `https://wa.me/250794506387${msg ? `?text=${encodeURIComponent(msg)}` : ""}`,
+    `https://wa.me/250793735430${msg ? `?text=${encodeURIComponent(msg)}` : ""}`,
 };

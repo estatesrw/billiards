@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -63,7 +64,7 @@ function Services() {
                     <h2 className="font-display text-2xl">{s.title}</h2>
                     <p className="mt-3 text-sm text-muted-foreground flex-1">{s.description}</p>
                     {s.price_cents > 0 && (
-                      <div className="mt-4 text-gold text-sm uppercase tracking-widest">From ${(s.price_cents / 100).toLocaleString()}</div>
+                      <div className="mt-4 text-gold text-sm uppercase tracking-widest">From {money(s.price_cents)}</div>
                     )}
                     <div className="mt-6 flex gap-2">
                       <a href={SITE.waLink(`I'd like to book: ${s.title}`)} target="_blank" rel="noreferrer" className="flex-1 text-center px-4 py-3 pill bg-[var(--ink)] text-[var(--ivory)] uppercase text-[10px] tracking-[0.25em] hover:bg-gold-gradient hover:text-[var(--ink)]">Book</a>

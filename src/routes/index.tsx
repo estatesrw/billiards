@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
@@ -7,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
+import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -91,16 +93,6 @@ function Home() {
 
   return (
     <PageShell>
-      {/* Promo banner */}
-      {settings?.promo_enabled && settings.promo_text && (
-        <div className="bg-gold-gradient text-[var(--ink)] overflow-hidden">
-          <div className="container-lux py-2.5 flex items-center justify-center gap-3 text-xs md:text-sm font-medium text-center">
-            <Sparkles className="w-4 h-4 shrink-0" />
-            <span>{settings.promo_text}</span>
-          </div>
-        </div>
-      )}
-
       {/* Hero — green/black, carousel first */}
       <section className="relative overflow-hidden bg-[#0B3B26] text-[#F3F6F2]">
         <div
@@ -149,7 +141,7 @@ function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {featured.map((p) => (
               <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
                 <div className="relative overflow-hidden aspect-[4/5] bg-secondary">
@@ -163,8 +155,8 @@ function Home() {
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div>
-                    <div className="font-display text-xl">{p.name}</div>
-                    <div className="text-sm text-muted-foreground">${(p.price_cents / 100).toLocaleString()}</div>
+                    <div className="font-display text-base md:text-xl">{p.name}</div>
+                    <div className="text-sm text-muted-foreground">{money(p.price_cents)}</div>
                   </div>
                   <div className="flex items-center gap-1 text-gold text-xs">
                     <Star className="w-3 h-3 fill-current" /> 4.9
@@ -379,36 +371,33 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
 
   useEffect(() => {
     if (count < 2 || paused) return;
-    const id = setInterval(() => setOffset((v) => (v + 1) % count), 3500);
+    const id = setInterval(() => setOffset((v) => v + 1), 3200);
     return () => clearInterval(id);
   }, [count, paused]);
 
   if (count === 0) return null;
 
-  const visibleCount = Math.min(7, count);
-  const half = Math.floor(visibleCount / 2);
-  const visible = Array.from({ length: visibleCount }, (_, k) => {
-    const rel = k - half;
-    const idx = ((offset + rel) % count + count) % count;
-    return { slide: slides[idx], rel };
-  });
-  const shift = (d: number) => setOffset((v) => (v + d + count) % count);
+  const active = ((offset % count) + count) % count;
+  const shift = (d: number) => setOffset((v) => v + d);
+
+  // shortest signed distance from active index, wrapping around
+  const relOf = (i: number) => {
+    let rel = i - active;
+    if (rel > count / 2) rel -= count;
+    if (rel < -count / 2) rel += count;
+    return rel;
+  };
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <div className="relative mx-auto w-full" style={{ height: "clamp(330px, 40vw, 560px)", perspective: "1400px" }}>
-        {visible.map(({ slide, rel }) => {
+    <div className="relative" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div
+        className="relative mx-auto w-full"
+        style={{ height: "clamp(330px, 40vw, 560px)", perspective: "1400px" }}
+      >
+        {slides.map((slide, i) => {
+          const rel = relOf(i);
           const abs = Math.abs(rel);
-          const rotate = rel * 7;
-          const translateX = rel * 26; // wider fan
-          const translateY = abs * abs * 7;
-          const scale = 1 - abs * 0.05;
-          const z = 100 - abs;
-          const opacity = abs > 3 ? 0.3 : 1;
+          const hidden = abs > 3;
           const isCenter = rel === 0;
           const inner = (
             <>
@@ -424,52 +413,82 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
               </div>
             </>
           );
-          const cardCls =
-            "absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-black transition-all duration-700 ease-out ring-1 ring-black/20";
-          const style: React.CSSProperties = {
-            width: "clamp(200px, 26vw, 380px)",
-            height: "clamp(260px, 32vw, 460px)",
-            transform: `translate(-50%, -50%) translateX(${translateX}%) translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
-            zIndex: z,
-            opacity,
-          };
-          return slide.link_url ? (
-            <a key={slide.id + rel} href={slide.link_url} className={cardCls + " cursor-pointer hover:brightness-110"} style={style}>
+          return (
+            <motion.div
+              key={slide.id}
+              className="absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-black ring-1 ring-black/20"
+              style={{
+                width: "clamp(200px, 26vw, 380px)",
+                height: "clamp(260px, 32vw, 460px)",
+                x: "-50%",
+                y: "-50%",
+                cursor: slide.link_url ? "pointer" : "default",
+              }}
+              onClick={() => {
+                if (!isCenter) return setOffset(offset + rel);
+                if (slide.link_url) window.location.href = slide.link_url;
+              }}
+              drag={isCenter ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.18}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -60) shift(1);
+                else if (info.offset.x > 60) shift(-1);
+              }}
+              animate={{
+                translateX: `${rel * 26}%`,
+                translateY: abs * abs * 7,
+                rotate: rel * 7,
+                scale: 1 - abs * 0.05,
+                opacity: hidden ? 0 : 1,
+                zIndex: 100 - abs,
+                filter: isCenter ? "brightness(1)" : "brightness(0.82)",
+              }}
+              transition={{ type: "spring", stiffness: 90, damping: 18, mass: 0.9 }}
+              whileHover={isCenter ? { scale: 1.04 } : undefined}
+            >
               {inner}
-            </a>
-          ) : (
-            <div key={slide.id + rel} className={cardCls} style={style}>
-              {inner}
-            </div>
+            </motion.div>
           );
         })}
       </div>
       {count > 1 && (
         <div className="mt-6 flex items-center justify-center gap-3">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={() => shift(-1)}
             aria-label="Previous"
             className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
           >
             ←
-          </button>
+          </motion.button>
           <div className="flex items-center gap-1.5">
             {slides.map((s, i) => (
               <button
                 key={s.id}
-                onClick={() => setOffset(i)}
+                onClick={() => setOffset(offset + relOf(i))}
                 aria-label={`Go to ${s.label}`}
-                className={`h-1.5 rounded-full transition-all ${i === ((offset % count) + count) % count ? "w-6 bg-[#7CE0A6]" : "w-1.5 bg-[#F3F6F2]/40"}`}
-              />
+                className="py-2"
+              >
+                <motion.span
+                  className="block h-1.5 rounded-full"
+                  animate={{
+                    width: i === active ? 24 : 6,
+                    backgroundColor: i === active ? "#7CE0A6" : "rgba(243,246,242,0.4)",
+                  }}
+                  transition={{ type: "spring", stiffness: 260, damping: 24 }}
+                />
+              </button>
             ))}
           </div>
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={() => shift(1)}
             aria-label="Next"
             className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
           >
             →
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

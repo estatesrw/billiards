@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchSettings, renderTemplate, waLink, DEFAULT_TEMPLATE } from "@/lib/settings";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
+import { money } from "@/lib/money";
+import { orderCartOnWhatsApp } from "@/lib/wa-order";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — B Trader Elite Billiards" }] }),
@@ -36,7 +38,7 @@ function Checkout() {
         ...form,
         user_id: u.user?.id ?? null,
         subtotal_cents: subtotal,
-        currency: "USD",
+        currency: "RWF",
         channel: "whatsapp",
         status: "pending",
       }).select("id").single();
@@ -52,7 +54,7 @@ function Checkout() {
       );
       if (iErr) throw iErr;
 
-      const lines = items.map((i) => `• ${i.name} × ${i.quantity} — $${((i.price_cents * i.quantity) / 100).toLocaleString()}`).join("\n");
+      const lines = items.map((i) => `• ${i.name} × ${i.quantity} — ${money(i.price_cents * i.quantity)}`).join("\n");
       const msg = renderTemplate(settings.order_message_template || DEFAULT_TEMPLATE, {
         order_id: order.id.slice(0, 8),
         full_name: form.full_name,
@@ -61,7 +63,7 @@ function Checkout() {
         address: form.address,
         city: form.city,
         items: lines,
-        subtotal: (subtotal / 100).toLocaleString(),
+        subtotal: money(subtotal),
         notes: form.notes || "—",
       });
       const wa = waLink(settings.whatsapp_number, msg);
@@ -111,7 +113,7 @@ function Checkout() {
           <p className="text-xs text-muted-foreground text-center">Payment on delivery or via bank transfer / mobile money — confirmed on WhatsApp.</p>
         </form>
 
-        <aside className="border hairline rounded-3xl bg-card p-6 h-fit">
+        <aside className="border hairline rounded-3xl bg-cream-soft p-6 h-fit">
           <div className="font-display text-xl">Your order</div>
           {items.length === 0 ? (
             <div className="mt-6 text-sm text-muted-foreground">Your cart is empty. <Link to="/shop" className="text-gold underline">Browse the collection</Link></div>
@@ -125,14 +127,32 @@ function Checkout() {
                       <div className="truncate">{i.name}</div>
                       <div className="text-xs text-muted-foreground">× {i.quantity}</div>
                     </div>
-                    <div className="text-sm">${((i.price_cents * i.quantity) / 100).toLocaleString()}</div>
+                    <div className="text-sm">{money(i.price_cents * i.quantity)}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 pt-4 border-t hairline flex justify-between items-center">
-                <span className="text-xs uppercase tracking-widest text-muted-foreground">Subtotal</span>
-                <span className="font-display text-2xl">${(subtotal / 100).toLocaleString()}</span>
+              <dl className="mt-6 space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Subtotal</dt>
+                  <dd>{money(subtotal)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Shipping</dt>
+                  <dd>Free</dd>
+                </div>
+              </dl>
+              <div className="mt-5 pt-5 border-t hairline flex justify-between items-center">
+                <span className="font-display text-lg">Total</span>
+                <span className="font-display text-2xl">{money(subtotal)}</span>
               </div>
+              <button
+                type="button"
+                onClick={() => orderCartOnWhatsApp(items, subtotal)}
+                className="mt-6 w-full px-6 py-4 rounded-full border border-[#25D366] text-[#128C42] text-sm font-medium hover:bg-[#25D366]/10 transition-colors"
+              >
+                Order on WhatsApp
+              </button>
+              <p className="mt-2 text-[11px] text-muted-foreground text-center">Prefer chatting? Send this cart to us directly.</p>
             </>
           )}
         </aside>
