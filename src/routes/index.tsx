@@ -46,14 +46,14 @@ function Home() {
     },
   });
 
-  const { data: homeProjects = [] } = useQuery({
-    queryKey: ["home", "projects"],
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ["home", "all_products"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("home_projects")
-        .select("id, name, category, image_url")
+        .from("products")
+        .select("id, slug, name, price_cents, image_url, badge, rating")
         .eq("is_published", true)
-        .order("sort_order");
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -171,11 +171,52 @@ function Home() {
         </div>
       </section>
 
+      {/* All products */}
+      <section className="pb-24 md:pb-32">
+        <div className="container-lux">
+          <div className="flex items-end justify-between flex-wrap gap-6 mb-10">
+            <div>
+              <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — All products</div>
+              <h2 className="mt-4 font-display text-4xl md:text-6xl">Shop everything.</h2>
+              <p className="mt-3 text-muted-foreground max-w-md">Tables, cues, accessories and games — the full catalogue.</p>
+            </div>
+            <Link to="/shop" className="text-sm uppercase tracking-widest text-gold gold-underline inline-flex items-center gap-2">
+              Open shop <ArrowUpRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+            {allProducts.map((p) => (
+              <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block border hairline rounded-3xl overflow-hidden bg-card">
+                <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+                  <img src={p.image_url || fallbackProduct} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  {p.badge && (
+                    <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">{p.badge}</div>
+                  )}
+                </div>
+                <div className="p-3 md:p-5">
+                  <div className="font-display text-base md:text-xl">{p.name}</div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">{money(p.price_cents)}</div>
+                    <div className="flex items-center gap-1 text-gold text-xs">
+                      <Star className="w-3 h-3 fill-current" /> {Number(p.rating).toFixed(1)}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {allProducts.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-12">No products yet.</div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Services overview */}
       <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
           <div className="max-w-2xl">
-            <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — Services</div>
+            <div className="text-xs uppercase tracking-[0.4em] text-gold">03 — Services</div>
             <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.services")}</h2>
             <p className="mt-3 text-muted-foreground">{t("sec.services.sub")}</p>
           </div>
@@ -206,7 +247,7 @@ function Home() {
       <section className="py-24 md:py-32">
         <div className="container-lux grid gap-16 lg:grid-cols-2 items-center">
           <div>
-            <div className="text-xs uppercase tracking-[0.4em] text-gold">03 — Craft</div>
+            <div className="text-xs uppercase tracking-[0.4em] text-gold">04 — Craft</div>
             <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.why")}</h2>
             <p className="mt-6 text-muted-foreground text-lg">
               For over a decade, B Trader Elite Billiards has shaped Rwanda's finest game rooms — pairing world-class equipment with the discipline of a true installation studio.
@@ -233,35 +274,6 @@ function Home() {
               <div className="text-gold font-display text-5xl">4.9<span className="text-xl">/5</span></div>
               <div className="mt-2 text-sm text-muted-foreground">Average client rating across 200+ installations.</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Projects */}
-      <section className="py-24 md:py-32 border-t hairline">
-        <div className="container-lux">
-          <div className="flex items-end justify-between flex-wrap gap-6 mb-14">
-            <div>
-              <div className="text-xs uppercase tracking-[0.4em] text-gold">04 — Projects</div>
-              <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.projects")}</h2>
-              <p className="mt-3 text-muted-foreground max-w-md">{t("sec.projects.sub")}</p>
-            </div>
-            <Link to="/projects" className="text-sm uppercase tracking-widest text-gold gold-underline inline-flex items-center gap-2">
-              All projects <ArrowUpRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {homeProjects.map((p) => (
-              <article key={p.id} className="group relative overflow-hidden aspect-[4/5]">
-                <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6">
-                  {p.category && <div className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.category}</div>}
-                  <div className="mt-2 font-display text-2xl">{p.name}</div>
-                </div>
-              </article>
-            ))}
           </div>
         </div>
       </section>
