@@ -46,14 +46,14 @@ function Home() {
     },
   });
 
-  const { data: homeProjects = [] } = useQuery({
-    queryKey: ["home", "projects"],
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ["home", "all_products"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("home_projects")
-        .select("id, name, category, image_url")
+        .from("products")
+        .select("id, slug, name, price_cents, image_url, badge, rating")
         .eq("is_published", true)
-        .order("sort_order");
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -175,7 +175,7 @@ function Home() {
       <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
           <div className="max-w-2xl">
-            <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — Services</div>
+            <div className="text-xs uppercase tracking-[0.4em] text-gold">03 — Services</div>
             <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.services")}</h2>
             <p className="mt-3 text-muted-foreground">{t("sec.services.sub")}</p>
           </div>
@@ -206,7 +206,7 @@ function Home() {
       <section className="py-24 md:py-32">
         <div className="container-lux grid gap-16 lg:grid-cols-2 items-center">
           <div>
-            <div className="text-xs uppercase tracking-[0.4em] text-gold">03 — Craft</div>
+            <div className="text-xs uppercase tracking-[0.4em] text-gold">04 — Craft</div>
             <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.why")}</h2>
             <p className="mt-6 text-muted-foreground text-lg">
               For over a decade, B Trader Elite Billiards has shaped Rwanda's finest game rooms — pairing world-class equipment with the discipline of a true installation studio.
