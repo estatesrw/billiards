@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { useI18n } from "@/lib/i18n";
+import logoAsset from "@/assets/btrader-logo.png.asset.json";
 
 export function Footer() {
   const { t } = useI18n();
@@ -14,7 +15,13 @@ export function Footer() {
       <div className="relative z-10">
       <div className="container-lux py-20 grid gap-14 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="font-display text-3xl">B Trader Elite Billiards</div>
+          <img
+            src={logoAsset.url}
+            alt="B Trader Elite Billiards logo"
+            className="h-16 w-auto rounded-xl object-contain"
+            loading="lazy"
+          />
+          <div className="mt-4 font-display text-2xl">B Trader Elite Billiards</div>
           <p className="mt-4 text-[#F3F6F2]/70 max-w-md">
             Rwanda's trusted supplier of tournament-grade pool, snooker and carom tables — plus expert installation, maintenance and refelting.
           </p>
