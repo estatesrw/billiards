@@ -22,7 +22,7 @@ export function Footer() {
             loading="lazy"
           />
           <div className="mt-4 font-display text-2xl">B Trader Elite Billiards</div>
-          <p className="mt-4 text-[#F3F6F2]/70 max-w-md">
+          <p className="mt-3 text-[#F3F6F2]/70 max-w-md">
             Rwanda's trusted supplier of tournament-grade pool, snooker and carom tables — plus expert installation, maintenance and refelting.
           </p>
           <div className="mt-6 flex gap-4">
