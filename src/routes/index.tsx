@@ -171,6 +171,47 @@ function Home() {
         </div>
       </section>
 
+      {/* All products */}
+      <section className="pb-24 md:pb-32">
+        <div className="container-lux">
+          <div className="flex items-end justify-between flex-wrap gap-6 mb-10">
+            <div>
+              <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — All products</div>
+              <h2 className="mt-4 font-display text-4xl md:text-6xl">Shop everything.</h2>
+              <p className="mt-3 text-muted-foreground max-w-md">Tables, cues, accessories and games — the full catalogue.</p>
+            </div>
+            <Link to="/shop" className="text-sm uppercase tracking-widest text-gold gold-underline inline-flex items-center gap-2">
+              Open shop <ArrowUpRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+            {allProducts.map((p) => (
+              <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block border hairline rounded-3xl overflow-hidden bg-card">
+                <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+                  <img src={p.image_url || fallbackProduct} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  {p.badge && (
+                    <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">{p.badge}</div>
+                  )}
+                </div>
+                <div className="p-3 md:p-5">
+                  <div className="font-display text-base md:text-xl">{p.name}</div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">{money(p.price_cents)}</div>
+                    <div className="flex items-center gap-1 text-gold text-xs">
+                      <Star className="w-3 h-3 fill-current" /> {Number(p.rating).toFixed(1)}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {allProducts.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-12">No products yet.</div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Services overview */}
       <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
