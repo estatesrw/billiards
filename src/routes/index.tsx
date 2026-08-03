@@ -237,35 +237,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Featured Projects */}
-      <section className="py-24 md:py-32 border-t hairline">
-        <div className="container-lux">
-          <div className="flex items-end justify-between flex-wrap gap-6 mb-14">
-            <div>
-              <div className="text-xs uppercase tracking-[0.4em] text-gold">04 — Projects</div>
-              <h2 className="mt-4 font-display text-4xl md:text-6xl">{t("sec.projects")}</h2>
-              <p className="mt-3 text-muted-foreground max-w-md">{t("sec.projects.sub")}</p>
-            </div>
-            <Link to="/projects" className="text-sm uppercase tracking-widest text-gold gold-underline inline-flex items-center gap-2">
-              All projects <ArrowUpRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {homeProjects.map((p) => (
-              <article key={p.id} className="group relative overflow-hidden aspect-[4/5]">
-                <img src={p.image_url} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6">
-                  {p.category && <div className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.category}</div>}
-                  <div className="mt-2 font-display text-2xl">{p.name}</div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials preview */}
       <section className="py-24 md:py-32 bg-cream-soft border-y hairline">
         <div className="container-lux">
