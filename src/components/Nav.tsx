@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
+import logoAsset from "@/assets/btrader-logo.png.asset.json";
 
 const links = [
   { to: "/", key: "nav.home" as const },
@@ -40,10 +41,13 @@ export function Nav() {
     <header className="sticky top-4 z-40 px-4">
       <div className="max-w-6xl mx-auto bg-background/85 backdrop-blur-xl pill shadow-pill border hairline flex items-center justify-between pl-5 pr-2 py-2">
         <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-          <span className="inline-block w-9 h-9 pill bg-[var(--ink)] text-[var(--ivory)] grid place-items-center font-display text-sm">B</span>
-          <span className="hidden sm:block font-display text-sm tracking-wide leading-tight">
-            <span className="block">B Trader</span>
-            <span className="block text-[9px] uppercase tracking-[0.25em] text-gold">Elite Billiards</span>
+          <img
+            src={logoAsset.url}
+            alt="B Trader Elite Billiards logo"
+            className="h-9 w-auto rounded-lg object-contain"
+          />
+          <span className="hidden sm:block font-display text-[10px] uppercase tracking-[0.25em] text-gold leading-tight">
+            Elite Billiards
           </span>
         </Link>
 
