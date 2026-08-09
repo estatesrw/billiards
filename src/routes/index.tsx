@@ -99,11 +99,11 @@ function Home() {
           className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(120% 90% at 50% 0%, rgba(24,110,68,0.55) 0%, rgba(11,59,38,0) 55%), linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)" }}
         />
-        <div className="container-lux relative z-10 pt-14 md:pt-20 pb-16 md:pb-24">
-          {/* Carousel first */}
+        <div className="relative z-10 pt-14 md:pt-20 pb-16 md:pb-24">
+          {/* Carousel first — full-bleed marquee */}
           <HeroFanCarousel slides={heroSlides} />
 
-          <div className="mt-12 md:mt-14 text-center animate-lux-in">
+          <div className="container-lux mt-12 md:mt-14 text-center animate-lux-in">
             <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.95] tracking-tight">
               Play in style<span className="text-[#7CE0A6]">.</span>
             </h1>
