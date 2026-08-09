@@ -377,25 +377,35 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
 type HeroSlide = { id: string; image_url: string; label: string; link_url: string | null };
 
 function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
-  const [paused, setPaused] = useState(false);
+  const paused = useRef(false);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const x = useMotionValue(0);
+
+  useAnimationFrame((_, delta) => {
+    if (paused.current || !trackRef.current) return;
+    const half = trackRef.current.scrollWidth / 2;
+    if (!half) return;
+    let next = x.get() - (delta / 1000) * 55; // px per second
+    if (next <= -half) next += half;
+    x.set(next);
+  });
+
   const count = slides.length;
   if (count === 0) return null;
 
   // Duplicate the strip so the loop is seamless
   const loop = [...slides, ...slides];
-  const duration = Math.max(18, count * 5);
 
   return (
     <div
       className="relative w-full overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => (paused.current = true)}
+      onMouseLeave={() => (paused.current = false)}
     >
       <motion.div
+        ref={trackRef}
         className="flex gap-4 md:gap-6 w-max will-change-transform"
-        animate={{ x: paused ? undefined : ["0%", "-50%"] }}
-        transition={{ duration, ease: "linear", repeat: Infinity }}
-        style={{ animationPlayState: paused ? "paused" : "running" }}
+        style={{ x }}
       >
         {loop.map((slide, i) => (
           <div
