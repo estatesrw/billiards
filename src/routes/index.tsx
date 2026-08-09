@@ -383,7 +383,7 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
 
   useEffect(() => {
     if (count < 2 || paused) return;
-    const id = setInterval(() => setOffset((v) => v + 1), 3200);
+    const id = setInterval(() => setOffset((v) => v + 1), 3000);
     return () => clearInterval(id);
   }, [count, paused]);
 
@@ -403,8 +403,8 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
   return (
     <div className="relative" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div
-        className="relative mx-auto w-full"
-        style={{ height: "clamp(330px, 40vw, 560px)", perspective: "1400px" }}
+        className="relative mx-auto w-full overflow-hidden"
+        style={{ height: "clamp(300px, 42vw, 620px)" }}
       >
         {slides.map((slide, i) => {
           const rel = relOf(i);
@@ -420,7 +420,7 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 whitespace-nowrap px-4 py-1.5 pill bg-black/85 text-[#F3F6F2] text-[10px] md:text-xs uppercase tracking-widest">
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 max-w-[85%] truncate px-4 py-1.5 pill bg-black/85 text-[#F3F6F2] text-[10px] md:text-xs uppercase tracking-widest">
                 {slide.label}
               </div>
             </>
@@ -428,10 +428,10 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
           return (
             <motion.div
               key={slide.id}
-              className="absolute top-1/2 left-1/2 rounded-[1.75rem] overflow-hidden shadow-luxe bg-black ring-1 ring-black/20"
+              className="absolute top-1/2 left-1/2 rounded-[1.5rem] overflow-hidden shadow-luxe bg-black ring-1 ring-black/20"
               style={{
-                width: "clamp(200px, 26vw, 380px)",
-                height: "clamp(260px, 32vw, 460px)",
+                width: "clamp(240px, 30vw, 460px)",
+                height: "clamp(280px, 38vw, 560px)",
                 x: "-50%",
                 y: "-50%",
                 cursor: slide.link_url ? "pointer" : "default",
@@ -448,16 +448,15 @@ function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
                 else if (info.offset.x > 60) shift(-1);
               }}
               animate={{
-                translateX: `${rel * 26}%`,
-                translateY: abs * abs * 7,
-                rotate: rel * 7,
-                scale: 1 - abs * 0.05,
+                translateX: `${rel * 108}%`,
+                translateY: 0,
+                rotate: 0,
+                scale: 1,
                 opacity: hidden ? 0 : 1,
                 zIndex: 100 - abs,
-                filter: isCenter ? "brightness(1)" : "brightness(0.82)",
+                filter: isCenter ? "brightness(1)" : "brightness(0.9)",
               }}
-              transition={{ type: "spring", stiffness: 90, damping: 18, mass: 0.9 }}
-              whileHover={isCenter ? { scale: 1.04 } : undefined}
+              transition={{ type: "spring", stiffness: 80, damping: 20, mass: 0.9 }}
             >
               {inner}
             </motion.div>
