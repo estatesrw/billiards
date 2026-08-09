@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { useI18n } from "@/lib/i18n";
+import { assetUrl } from "@/lib/asset-url";
 import logoAsset from "@/assets/btrader-logo.png.asset.json";
 
 export function Footer() {
@@ -16,7 +17,7 @@ export function Footer() {
       <div className="container-lux py-20 grid gap-14 md:grid-cols-4">
         <div className="md:col-span-2">
           <img
-            src={logoAsset.url}
+            src={assetUrl(logoAsset.url)}
             alt="B Trader Elite Billiards logo"
             className="h-16 w-auto rounded-xl object-contain"
             loading="lazy"
