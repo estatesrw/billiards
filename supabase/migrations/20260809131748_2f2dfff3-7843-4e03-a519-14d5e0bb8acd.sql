@@ -1,0 +1,4 @@
+UPDATE public.products SET image_url = 'https://project--4b575a98-afed-4a82-840c-6ca24d958776.lovable.app' || image_url WHERE image_url LIKE '/__l5e/%';
+UPDATE public.gallery_items SET image_url = 'https://project--4b575a98-afed-4a82-840c-6ca24d958776.lovable.app' || image_url WHERE image_url LIKE '/__l5e/%';
+UPDATE public.hero_slides SET image_url = 'https://project--4b575a98-afed-4a82-840c-6ca24d958776.lovable.app' || image_url WHERE image_url LIKE '/__l5e/%';
+UPDATE public.services SET image_url = 'https://project--4b575a98-afed-4a82-840c-6ca24d958776.lovable.app' || image_url WHERE image_url LIKE '/__l5e/%';
