@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Star, Shield, Wrench, Truck, Trophy, Sparkles, Plus, Minus, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
