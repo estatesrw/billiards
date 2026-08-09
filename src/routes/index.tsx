@@ -377,131 +377,50 @@ function FAQSection({ groups }: { groups: Record<string, { id: string; category:
 type HeroSlide = { id: string; image_url: string; label: string; link_url: string | null };
 
 function HeroFanCarousel({ slides }: { slides: HeroSlide[] }) {
-  const [offset, setOffset] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = slides.length;
-
-  useEffect(() => {
-    if (count < 2 || paused) return;
-    const id = setInterval(() => setOffset((v) => v + 1), 3000);
-    return () => clearInterval(id);
-  }, [count, paused]);
-
   if (count === 0) return null;
 
-  const active = ((offset % count) + count) % count;
-  const shift = (d: number) => setOffset((v) => v + d);
-
-  // shortest signed distance from active index, wrapping around
-  const relOf = (i: number) => {
-    let rel = i - active;
-    if (rel > count / 2) rel -= count;
-    if (rel < -count / 2) rel += count;
-    return rel;
-  };
+  // Duplicate the strip so the loop is seamless
+  const loop = [...slides, ...slides];
+  const duration = Math.max(18, count * 5);
 
   return (
-    <div className="relative" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div
-        className="relative mx-auto w-full overflow-hidden"
-        style={{ height: "clamp(300px, 42vw, 620px)" }}
+    <div
+      className="relative w-full overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <motion.div
+        className="flex gap-4 md:gap-6 w-max will-change-transform"
+        animate={{ x: paused ? undefined : ["0%", "-50%"] }}
+        transition={{ duration, ease: "linear", repeat: Infinity }}
+        style={{ animationPlayState: paused ? "paused" : "running" }}
       >
-        {slides.map((slide, i) => {
-          const rel = relOf(i);
-          const abs = Math.abs(rel);
-          const hidden = abs > 3;
-          const isCenter = rel === 0;
-          const inner = (
-            <>
-              <img
-                src={slide.image_url}
-                alt={slide.label}
-                loading={isCenter ? "eager" : "lazy"}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 max-w-[85%] truncate px-4 py-1.5 pill bg-black/85 text-[#F3F6F2] text-[10px] md:text-xs uppercase tracking-widest">
-                {slide.label}
-              </div>
-            </>
-          );
-          return (
-            <motion.div
-              key={slide.id}
-              className="absolute top-1/2 left-1/2 rounded-[1.5rem] overflow-hidden shadow-luxe bg-black ring-1 ring-black/20"
-              style={{
-                width: "clamp(240px, 30vw, 460px)",
-                height: "clamp(280px, 38vw, 560px)",
-                x: "-50%",
-                y: "-50%",
-                cursor: slide.link_url ? "pointer" : "default",
-              }}
-              onClick={() => {
-                if (!isCenter) return setOffset(offset + rel);
-                if (slide.link_url) window.location.href = slide.link_url;
-              }}
-              drag={isCenter ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.18}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -60) shift(1);
-                else if (info.offset.x > 60) shift(-1);
-              }}
-              animate={{
-                translateX: `${rel * 108}%`,
-                translateY: 0,
-                rotate: 0,
-                scale: 1,
-                opacity: hidden ? 0 : 1,
-                zIndex: 100 - abs,
-                filter: isCenter ? "brightness(1)" : "brightness(0.9)",
-              }}
-              transition={{ type: "spring", stiffness: 80, damping: 20, mass: 0.9 }}
-            >
-              {inner}
-            </motion.div>
-          );
-        })}
-      </div>
-      {count > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-3">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => shift(-1)}
-            aria-label="Previous"
-            className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
+        {loop.map((slide, i) => (
+          <div
+            key={`${slide.id}-${i}`}
+            onClick={() => slide.link_url && (window.location.href = slide.link_url)}
+            className="relative shrink-0 rounded-[1.25rem] overflow-hidden bg-black ring-1 ring-white/10 shadow-luxe"
+            style={{
+              width: "clamp(200px, 18vw, 280px)",
+              height: "clamp(230px, 21vw, 320px)",
+              cursor: slide.link_url ? "pointer" : "default",
+            }}
           >
-            ←
-          </motion.button>
-          <div className="flex items-center gap-1.5">
-            {slides.map((s, i) => (
-              <button
-                key={s.id}
-                onClick={() => setOffset(offset + relOf(i))}
-                aria-label={`Go to ${s.label}`}
-                className="py-2"
-              >
-                <motion.span
-                  className="block h-1.5 rounded-full"
-                  animate={{
-                    width: i === active ? 24 : 6,
-                    backgroundColor: i === active ? "#7CE0A6" : "rgba(243,246,242,0.4)",
-                  }}
-                  transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                />
-              </button>
-            ))}
+            <img
+              src={slide.image_url}
+              alt={slide.label}
+              loading={i < 6 ? "eager" : "lazy"}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-4 max-w-[88%] truncate px-4 py-1.5 pill bg-[#F3F6F2] text-black text-[10px] md:text-xs">
+              {slide.label}
+            </div>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => shift(1)}
-            aria-label="Next"
-            className="w-10 h-10 grid place-items-center pill border border-[#F3F6F2]/30 text-[#F3F6F2] hover:bg-[#F3F6F2] hover:text-black transition"
-          >
-            →
-          </motion.button>
-        </div>
-      )}
+        ))}
+      </motion.div>
     </div>
   );
 }
