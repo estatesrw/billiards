@@ -10,13 +10,17 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
-    meta: [
-      { title: "Shop — B Trader Elite Billiards" },
-      { name: "description", content: "Browse premium pool tables, snooker tables, cues, balls, and billiards accessories." },
-    ],
+    ...seo({
+      title: "Shop Pool & Snooker Tables in Kigali | B Trader Elite Billiards",
+      description: "Shop pool tables, snooker tables, carom tables, cues, balls, chalk and billiards accessories in Rwanda. Prices in RWF, delivery in Kigali, WhatsApp ordering.",
+      path: "/shop",
+      keywords: "buy pool table Rwanda, snooker table for sale Kigali, billiard cues Rwanda, pool balls Kigali, billiards shop Rwanda",
+    }),
+    scripts: [ldJson(breadcrumbLd([{ name: "Home", path: "/" }, { name: "Shop", path: "/shop" }]))],
   }),
   component: Shop,
 });
@@ -123,7 +127,7 @@ function Shop() {
           {items.map((p) => (
             <article key={p.id} className="group border hairline rounded-3xl overflow-hidden flex flex-col bg-card">
               <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
-                <img src={p.image_url || fallbackImg} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={p.image_url || fallbackImg} alt={`${p.name} — buy billiards equipment in Kigali, Rwanda`} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 {p.badge && (
                   <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">
                     {p.badge}

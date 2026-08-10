@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 
-const BASE_URL = "";
+const BASE_URL = "https://thebtrader.com";
 
 interface SitemapEntry { path: string; changefreq?: string; priority?: string }
 
@@ -20,6 +21,17 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/faq", changefreq: "monthly", priority: "0.5" },
           { path: "/contact", changefreq: "yearly", priority: "0.7" },
         ];
+        try {
+          const { data } = await supabase
+            .from("products")
+            .select("slug")
+            .eq("is_published", true);
+          for (const p of data ?? []) {
+            entries.push({ path: `/shop/${p.slug}`, changefreq: "weekly", priority: "0.8" });
+          }
+        } catch {
+          // sitemap still valid without product URLs
+        }
         const urls = entries.map(
           (e) => `  <url><loc>${BASE_URL}${e.path}</loc>${e.changefreq ? `<changefreq>${e.changefreq}</changefreq>` : ""}${e.priority ? `<priority>${e.priority}</priority>` : ""}</url>`,
         );

@@ -2,12 +2,29 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
-    meta: [
-      { title: "FAQ — B Trader Elite Billiards" },
-      { name: "description", content: "Answers about prices, delivery, warranty, installation and payment for billiards tables in Rwanda." },
+    ...seo({
+      title: "Billiards FAQ — Prices, Delivery, Warranty & Installation Rwanda",
+      description: "Frequently asked questions about buying a pool or snooker table in Rwanda: prices in RWF, Kigali delivery, 2-year warranty, installation time, payment and maintenance.",
+      path: "/faq",
+      keywords: "pool table price Rwanda, billiards delivery Kigali, pool table warranty Rwanda",
+    }),
+    scripts: [
+      ldJson({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: SECTIONS.flatMap((s) =>
+          s.items.map((i) => ({
+            "@type": "Question",
+            name: i.q,
+            acceptedAnswer: { "@type": "Answer", text: i.a },
+          })),
+        ),
+      }),
+      ldJson(breadcrumbLd([{ name: "Home", path: "/" }, { name: "FAQ", path: "/faq" }])),
     ],
   }),
   component: FAQ,
@@ -17,8 +34,8 @@ const SECTIONS = [
   {
     cat: "Prices",
     items: [
-      { q: "How much does a pool table cost?", a: "Pool tables start at $3,200 for our Regal Pro line. Snooker tables begin at $4,600, and carom tables at $2,900. Custom builds are quoted individually." },
-      { q: "Do you offer payment plans?", a: "Yes — for orders above $2,000 we offer flexible 3–6 month installments with a signed agreement." },
+      { q: "How much does a pool table cost in Rwanda?", a: "Every table in our Kigali showroom is priced in Rwandan francs (RWF) on the product page — browse the shop for live prices, or message us on WhatsApp at +250 793 735 430 for a quote on a specific size, cloth colour or custom build." },
+      { q: "Do you offer payment plans for billiards tables?", a: "Yes. For larger orders we offer flexible 3–6 month instalments in RWF with a signed agreement. Talk to us on WhatsApp to arrange terms." },
     ],
   },
   {

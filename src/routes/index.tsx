@@ -9,8 +9,18 @@ import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
 import { money } from "@/lib/money";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    ...seo({
+      title: "Pool Tables & Billiards Rwanda | Buy Online — B Trader Elite",
+      description: "Buy premium pool, snooker and carom tables, cues, balls and billiards accessories in Kigali, Rwanda. Free delivery, 2-year warranty, expert installation. Order on WhatsApp today.",
+      path: "/",
+      keywords: "pool tables Rwanda, billiards Kigali, snooker table price Rwanda, buy pool table Kigali, carom table, billiard accessories Rwanda, pool table installation Kigali",
+    }),
+    scripts: [ldJson(localBusinessLd)],
+  }),
   component: Home,
 });
 
@@ -107,6 +117,10 @@ function Home() {
             <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.95] tracking-tight">
               Play in style<span className="text-[#7CE0A6]">.</span>
             </h1>
+            <p className="mt-5 mx-auto max-w-2xl text-sm md:text-base text-[#F3F6F2]/80">
+              Rwanda's home of premium pool, snooker and carom tables — cues, balls and accessories,
+              delivered and installed anywhere in Kigali with a 2-year warranty.
+            </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/shop"
@@ -145,7 +159,7 @@ function Home() {
             {featured.map((p) => (
               <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
                 <div className="relative overflow-hidden aspect-[4/5] bg-secondary">
-                  <img src={p.image_url || fallbackProduct} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
+                  <img src={p.image_url || fallbackProduct} alt={`${p.name} — billiards equipment for sale in Kigali, Rwanda`} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
                   {p.badge && (
                     <div className="absolute top-4 right-4 text-[10px] uppercase tracking-widest bg-[var(--ink)]/60 text-gold px-3 py-1 border border-[var(--gold)]/40">
@@ -177,8 +191,8 @@ function Home() {
           <div className="flex items-end justify-between flex-wrap gap-6 mb-10">
             <div>
               <div className="text-xs uppercase tracking-[0.4em] text-gold">02 — All products</div>
-              <h2 className="mt-4 font-display text-4xl md:text-6xl">Shop everything.</h2>
-              <p className="mt-3 text-muted-foreground max-w-md">Tables, cues, accessories and games — the full catalogue.</p>
+              <h2 className="mt-4 font-display text-4xl md:text-6xl">Shop all billiards products in Rwanda</h2>
+              <p className="mt-3 text-muted-foreground max-w-md">Pool tables, snooker tables, carom tables, cues, balls, chalk and board games — the full catalogue, priced in RWF.</p>
             </div>
             <Link to="/shop" className="text-sm uppercase tracking-widest text-gold gold-underline inline-flex items-center gap-2">
               Open shop <ArrowUpRight className="w-4 h-4" />
@@ -189,7 +203,7 @@ function Home() {
             {allProducts.map((p) => (
               <Link key={p.id} to="/shop/$slug" params={{ slug: p.slug }} className="group block border hairline rounded-3xl overflow-hidden bg-card">
                 <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
-                  <img src={p.image_url || fallbackProduct} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={p.image_url || fallbackProduct} alt={`${p.name} — billiards equipment for sale in Kigali, Rwanda`} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   {p.badge && (
                     <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">{p.badge}</div>
                   )}
@@ -269,7 +283,7 @@ function Home() {
             </ul>
           </div>
           <div className="relative aspect-[4/5]">
-            <img src={productPool} alt="Luxury pool table detail" loading="lazy" className="w-full h-full object-cover" />
+            <img src={productPool} alt="Luxury pool table installed in a Kigali home by B Trader Elite Billiards" loading="lazy" className="w-full h-full object-cover" />
             <div className="absolute -bottom-8 -left-8 bg-background border hairline p-8 max-w-xs hidden md:block shadow-luxe">
               <div className="text-gold font-display text-5xl">4.9<span className="text-xl">/5</span></div>
               <div className="mt-2 text-sm text-muted-foreground">Average client rating across 200+ installations.</div>

@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/testimonials")({
   head: () => ({
-    meta: [
-      { title: "Reviews — B Trader Elite Billiards" },
-      { name: "description", content: "What our clients say — hotels, bars, clubs and private owners across Rwanda." },
-    ],
+    ...seo({
+      title: "Client Reviews — B Trader Elite Billiards Rwanda",
+      description: "Reviews from hotels, bars, clubs and private owners across Rwanda who bought pool and snooker tables from B Trader Elite Billiards in Kigali.",
+      path: "/testimonials",
+      keywords: "billiards reviews Rwanda, pool table seller Kigali reviews",
+    }),
   }),
   component: Testimonials,
 });
