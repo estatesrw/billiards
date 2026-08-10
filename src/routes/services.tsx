@@ -57,7 +57,7 @@ function Services() {
                 <article key={s.id} className="group border hairline rounded-3xl overflow-hidden bg-background hover:border-[var(--gold)]/60 transition-colors flex flex-col">
                   <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
                     {s.image_url && (
-                      <img src={s.image_url} alt={s.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
+                      <img src={s.image_url} alt={`${s.title} — billiards service in Kigali, Rwanda`} loading="lazy" className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105" />
                     )}
                     <div className="absolute top-4 left-4 w-11 h-11 rounded-full bg-background/90 backdrop-blur border border-[var(--gold)] grid place-items-center text-gold">
                       <Icon className="w-5 h-5" />

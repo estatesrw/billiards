@@ -55,8 +55,8 @@ function About() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <img src={gallery} alt="Table under gold light" loading="lazy" className="aspect-[3/4] object-cover w-full" />
-          <img src={cues} alt="Elite cue set" loading="lazy" className="aspect-[3/4] object-cover w-full mt-12" />
+          <img src={gallery} alt="Premium pool table under gold light in the B Trader Elite Billiards Kigali showroom" loading="lazy" className="aspect-[3/4] object-cover w-full" />
+          <img src={cues} alt="Elite billiards cue set available in Kigali, Rwanda" loading="lazy" className="aspect-[3/4] object-cover w-full mt-12" />
         </div>
       </section>
 

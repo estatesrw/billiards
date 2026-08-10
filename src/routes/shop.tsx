@@ -127,7 +127,7 @@ function Shop() {
           {items.map((p) => (
             <article key={p.id} className="group border hairline rounded-3xl overflow-hidden flex flex-col bg-card">
               <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
-                <img src={p.image_url || fallbackImg} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={p.image_url || fallbackImg} alt={`${p.name} — buy billiards equipment in Kigali, Rwanda`} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 {p.badge && (
                   <div className="absolute top-3 left-3 text-[10px] uppercase tracking-widest px-3 py-1 pill bg-gold-gradient text-[var(--ink)]">
                     {p.badge}
