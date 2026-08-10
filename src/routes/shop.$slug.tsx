@@ -10,6 +10,7 @@ import { Heart, ShoppingBag, Star, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
+import { seo, ldJson, breadcrumbLd, titleCase, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: async ({ params }) => {
