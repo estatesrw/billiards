@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
-    meta: [
-      { title: "Gallery — B Trader Elite Billiards" },
-      { name: "description", content: "A visual showcase of installations, craftsmanship and premium billiards rooms." },
-    ],
+    ...seo({
+      title: "Billiards Gallery — Pool Table Installations in Rwanda",
+      description: "Photo gallery of B Trader Elite Billiards work in Rwanda: luxury pool table installations, snooker rooms, hotel and lounge game rooms in Kigali.",
+      path: "/gallery",
+      keywords: "billiards gallery Rwanda, pool room design Kigali, pool table photos Rwanda",
+    }),
   }),
   component: Gallery,
 });

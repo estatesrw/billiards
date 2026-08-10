@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { useI18n } from "@/lib/i18n";
 import { gallery4 as gallery, productCues as cues } from "@/lib/images";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
-    meta: [
-      { title: "About — B Trader Elite Billiards" },
-      { name: "description", content: "The story, mission and craft behind Rwanda's premier billiards house." },
-    ],
+    ...seo({
+      title: "About B Trader Elite Billiards — Rwanda's Billiards Specialists",
+      description: "Meet B Trader Elite Billiards: a Rwandan company supplying, installing and servicing premium pool, snooker and carom tables in Kigali since day one. Inzu y'ubuhanga mu biliyari.",
+      path: "/about",
+      keywords: "billiards company Rwanda, B Trader Elite Billiards, pool table supplier Kigali",
+    }),
   }),
   component: About,
 });

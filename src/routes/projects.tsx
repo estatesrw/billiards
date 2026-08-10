@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { projectHotel as hotel, projectBar as bar, projectClub as club, gallery4 as g4, productPool as pool, productSnooker as snooker } from "@/lib/images";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
-    meta: [
-      { title: "Projects — B Trader Elite Billiards" },
-      { name: "description", content: "Completed installations across hotels, bars, clubs, homes and schools in Rwanda." },
-    ],
+    ...seo({
+      title: "Our Projects — Pool Table Installations in Kigali & Rwanda",
+      description: "Completed billiards projects across Rwanda: hotels, bars, private clubs, schools and homes fitted with premium pool and snooker tables by B Trader Elite Billiards.",
+      path: "/projects",
+      keywords: "pool table projects Rwanda, hotel game room Kigali, billiards installation portfolio Rwanda",
+    }),
   }),
   component: Projects,
 });

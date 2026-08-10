@@ -5,13 +5,17 @@ import { PageShell, PageHeader } from "@/components/PageShell";
 import { SITE } from "@/lib/site";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/money";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
-    meta: [
-      { title: "Services — B Trader Elite Billiards" },
-      { name: "description", content: "Billiards table installation, moving, repair, cloth replacement and maintenance in Rwanda." },
-    ],
+    ...seo({
+      title: "Pool Table Installation, Moving & Repair in Kigali, Rwanda",
+      description: "Professional billiards services in Rwanda: pool table installation, moving and relocation, cloth (felt) replacement, cushion repair, levelling and maintenance by B Trader Elite technicians.",
+      path: "/services",
+      keywords: "pool table installation Kigali, pool table repair Rwanda, billiard table moving Kigali, pool table felt replacement Rwanda, snooker table maintenance",
+    }),
+    scripts: [ldJson(breadcrumbLd([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }]))],
   }),
   component: Services,
 });

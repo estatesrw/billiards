@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
-    meta: [
-      { title: "FAQ — B Trader Elite Billiards" },
-      { name: "description", content: "Answers about prices, delivery, warranty, installation and payment for billiards tables in Rwanda." },
-    ],
+    ...seo({
+      title: "Billiards FAQ — Prices, Delivery, Warranty & Installation Rwanda",
+      description: "Frequently asked questions about buying a pool or snooker table in Rwanda: prices in RWF, Kigali delivery, 2-year warranty, installation time, payment and maintenance.",
+      path: "/faq",
+      keywords: "pool table price Rwanda, billiards delivery Kigali, pool table warranty Rwanda",
+    }),
   }),
   component: FAQ,
 });

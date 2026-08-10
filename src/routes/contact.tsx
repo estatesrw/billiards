@@ -3,13 +3,17 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { SITE } from "@/lib/site";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
-    meta: [
-      { title: "Contact — B Trader Elite Billiards" },
-      { name: "description", content: "Get in touch — WhatsApp, phone, email or visit our showroom in Kigali." },
-    ],
+    ...seo({
+      title: "Contact B Trader Elite Billiards — Kigali Showroom & WhatsApp",
+      description: "Contact B Trader Elite Billiards in Kigali: WhatsApp +250 793 735 430, visit our KN 2 St showroom, or send a message for pool table prices, delivery and installation in Rwanda.",
+      path: "/contact",
+      keywords: "billiards Kigali contact, pool table price Rwanda, buy pool table WhatsApp Rwanda",
+    }),
+    scripts: [ldJson(localBusinessLd)],
   }),
   component: Contact,
 });

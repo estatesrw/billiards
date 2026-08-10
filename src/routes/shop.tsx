@@ -10,13 +10,17 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
-    meta: [
-      { title: "Shop — B Trader Elite Billiards" },
-      { name: "description", content: "Browse premium pool tables, snooker tables, cues, balls, and billiards accessories." },
-    ],
+    ...seo({
+      title: "Shop Pool & Snooker Tables in Kigali | B Trader Elite Billiards",
+      description: "Shop pool tables, snooker tables, carom tables, cues, balls, chalk and billiards accessories in Rwanda. Prices in RWF, delivery in Kigali, WhatsApp ordering.",
+      path: "/shop",
+      keywords: "buy pool table Rwanda, snooker table for sale Kigali, billiard cues Rwanda, pool balls Kigali, billiards shop Rwanda",
+    }),
+    scripts: [ldJson(breadcrumbLd([{ name: "Home", path: "/" }, { name: "Shop", path: "/shop" }]))],
   }),
   component: Shop,
 });

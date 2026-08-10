@@ -9,8 +9,18 @@ import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
 import { money } from "@/lib/money";
+import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    ...seo({
+      title: "Pool Tables & Billiards Rwanda | Buy Online — B Trader Elite",
+      description: "Buy premium pool, snooker and carom tables, cues, balls and billiards accessories in Kigali, Rwanda. Free delivery, 2-year warranty, expert installation. Order on WhatsApp today.",
+      path: "/",
+      keywords: "pool tables Rwanda, billiards Kigali, snooker table price Rwanda, buy pool table Kigali, carom table, billiard accessories Rwanda, pool table installation Kigali",
+    }),
+    scripts: [ldJson(localBusinessLd)],
+  }),
   component: Home,
 });
 
