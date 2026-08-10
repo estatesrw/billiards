@@ -12,12 +12,59 @@ import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
 
 export const Route = createFileRoute("/shop/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug} — B Trader Elite Billiards` },
-      { name: "description", content: "Premium billiards product from B Trader Elite Billiards." },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("products")
+      .select("name, description, image_url, price_cents, currency, rating, stock")
+      .eq("slug", params.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    return { product: data };
+  },
+  head: ({ params, loaderData }) => {
+    const p = loaderData?.product;
+    const name = p?.name ?? titleCase(params.slug);
+    const desc =
+      p?.description?.slice(0, 155) ??
+      `${name} — premium billiards equipment for sale in Kigali, Rwanda. Delivery, installation and 2-year warranty from B Trader Elite Billiards.`;
+    return {
+      ...seo({
+        title: `${name} — Price in Rwanda | B Trader Elite Billiards`,
+        description: desc,
+        path: `/shop/${params.slug}`,
+        type: "product",
+        image: p?.image_url ?? undefined,
+        keywords: `${name} Rwanda, ${name} price Kigali, buy ${name} Rwanda, billiards Kigali`,
+      }),
+      scripts: [
+        ldJson({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name,
+          description: desc,
+          image: p?.image_url ? [p.image_url] : undefined,
+          brand: { "@type": "Brand", name: "B Trader Elite Billiards" },
+          offers: {
+            "@type": "Offer",
+            price: ((p?.price_cents ?? 0) / 100).toFixed(0),
+            priceCurrency: p?.currency ?? "RWF",
+            availability:
+              (p?.stock ?? 0) > 0
+                ? "https://schema.org/InStock"
+                : "https://schema.org/PreOrder",
+            url: `${SITE_URL}/shop/${params.slug}`,
+          },
+        }),
+        ldJson(
+          breadcrumbLd([
+            { name: "Home", path: "/" },
+            { name: "Shop", path: "/shop" },
+            { name, path: `/shop/${params.slug}` },
+          ]),
+        ),
+      ],
+    };
+  },
   component: ProductDetail,
   errorComponent: ({ error, reset }) => (
     <PageShell><div className="container-lux py-24 text-center"><p className="text-muted-foreground">{error.message}</p><button onClick={reset} className="mt-4 text-gold underline">Retry</button></div></PageShell>
