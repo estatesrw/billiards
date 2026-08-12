@@ -6,6 +6,11 @@ export const SOCIAL_IMAGE =
 
 type MetaEntry = Record<string, string>;
 
+// Brand-name variations people type into Google. Appended to every page's keywords
+// so brand searches ("B Trader", "btrader billiards") surface this site.
+export const BRAND_KEYWORDS =
+  "B Trader, BTrader, B-Trader, B Trader Rwanda, B Trader Kigali, B Trader Billiards, B Trader Elite, B Trader Elite Billiards, thebtrader, thebtrader.com, btrader billiards Rwanda";
+
 export function seo(opts: {
   title: string;
   description: string;
@@ -31,7 +36,13 @@ export function seo(opts: {
     { name: "twitter:image", content: image },
     { name: "robots", content: "index, follow, max-image-preview:large" },
   ];
-  if (opts.keywords) meta.push({ name: "keywords", content: opts.keywords });
+  meta.push({
+    name: "keywords",
+    content: opts.keywords ? `${BRAND_KEYWORDS}, ${opts.keywords}` : BRAND_KEYWORDS,
+  });
+  meta.push({ name: "author", content: BRAND });
+  meta.push({ name: "geo.region", content: "RW-01" });
+  meta.push({ name: "geo.placename", content: "Kigali" });
   return {
     meta,
     links: [{ rel: "canonical", href: url }],
@@ -46,6 +57,7 @@ export const localBusinessLd = {
   "@context": "https://schema.org",
   "@type": "Store",
   name: BRAND,
+  alternateName: ["B Trader", "BTrader", "B Trader Billiards", "B Trader Elite", "B Trader Rwanda"],
   description:
     "Rwanda's leading billiards store — luxury pool tables, snooker tables, carom tables, cues, balls and accessories, with professional installation, moving, repair and maintenance in Kigali.",
   url: SITE_URL,
@@ -62,6 +74,31 @@ export const localBusinessLd = {
   areaServed: ["Kigali", "Rwanda", "East Africa"],
   sameAs: ["https://www.facebook.com/share/1918oKHG2J/?mibextid=wwXIfr"],
   openingHours: "Mo-Sa 08:00-19:00",
+};
+
+// Brand entity + site search, so Google can build a brand knowledge panel and sitelinks.
+export const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: BRAND,
+  alternateName: ["B Trader", "BTrader", "B Trader Billiards", "B Trader Elite Billiards"],
+  url: SITE_URL,
+  logo: SOCIAL_IMAGE,
+  telephone: "+250793735430",
+  sameAs: ["https://www.facebook.com/share/1918oKHG2J/?mibextid=wwXIfr"],
+};
+
+export const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: BRAND,
+  alternateName: "B Trader",
+  url: SITE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/shop?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export function breadcrumbLd(items: { name: string; path: string }[]) {
