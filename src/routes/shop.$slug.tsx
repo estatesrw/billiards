@@ -68,7 +68,7 @@ export const Route = createFileRoute("/shop/$slug")({
   },
   component: ProductDetail,
   errorComponent: ({ error, reset }) => (
-    <PageShell><div className="container-lux py-24 text-center"><p className="text-muted-foreground">{error.message}</p><button onClick={reset} className="mt-4 text-gold underline">Retry</button></div></PageShell>
+    <PageShell><div className="container-lux py-24 text-center"><p className="text-muted-foreground">{(error as Error).message}</p><button onClick={reset} className="mt-4 text-gold underline">Retry</button></div></PageShell>
   ),
   notFoundComponent: () => (
     <PageShell><div className="container-lux py-24 text-center"><h1 className="font-display text-3xl">Product not found</h1><Link to="/shop" className="mt-4 inline-block text-gold underline">Back to shop</Link></div></PageShell>
