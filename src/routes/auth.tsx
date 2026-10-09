@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageShell } from "@/components/PageShell";
 import { toast } from "sonner";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -98,9 +99,8 @@ function AuthPage() {
             </label>
             <label className="block">
               <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Password</span>
-              <input
+              <PasswordInput
                 required
-                type="password"
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

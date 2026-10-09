@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { PageShell, PageHeader } from "@/components/PageShell";
 import { supabase } from "@/integrations/supabase/client";
-import { Heart, Package, ShieldCheck, Trash2 } from "lucide-react";
+import { Heart, Package, ShieldCheck, Trash2, Settings } from "lucide-react";
+import { AccountSettings } from "@/components/AccountSettings";
 import { fallbackProduct as fallbackImg } from "@/lib/images";
 import { money } from "@/lib/money";
 
@@ -22,7 +23,7 @@ type Order = {
 };
 
 function Account() {
-  const [tab, setTab] = useState<"orders" | "wishlist">("orders");
+  const [tab, setTab] = useState<"orders" | "wishlist" | "settings">("orders");
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState<string>("");
 
@@ -76,6 +77,9 @@ function Account() {
           <button onClick={() => setTab("wishlist")} className={`px-5 py-3 pill text-xs uppercase tracking-widest flex items-center gap-2 ${tab === "wishlist" ? "bg-[var(--ink)] text-[var(--ivory)]" : "border hairline hover:bg-secondary"}`}>
             <Heart className="w-3 h-3" /> Wishlist
           </button>
+          <button onClick={() => setTab("settings")} className={`px-5 py-3 pill text-xs uppercase tracking-widest flex items-center gap-2 ${tab === "settings" ? "bg-[var(--ink)] text-[var(--ivory)]" : "border hairline hover:bg-secondary"}`}>
+            <Settings className="w-3 h-3" /> Settings
+          </button>
           {isAdmin && (
             <Link to="/admin" className="ml-auto px-5 py-3 pill text-xs uppercase tracking-widest border border-[var(--gold)] text-gold hover:bg-gold-gradient hover:text-[var(--ink)] flex items-center gap-2">
               <ShieldCheck className="w-3 h-3" /> Admin
@@ -84,7 +88,9 @@ function Account() {
         </div>
 
         <div className="mt-8">
-          {tab === "orders" ? (
+          {tab === "settings" ? (
+            <AccountSettings currentEmail={email} />
+          ) : tab === "orders" ? (
             orders.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">No orders yet. <Link to="/shop" className="text-gold underline">Start shopping</Link></div>
             ) : (
