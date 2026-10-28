@@ -17,24 +17,41 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
+  async function routeAfterAuth(userId: string) {
+    const { data: rows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin");
+    navigate({ to: (rows?.length ?? 0) > 0 ? "/admin" : "/" });
+  }
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/" });
+      if (data.user) routeAfterAuth(data.user.id);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Reset link sent — check your inbox (and spam folder).");
+        setMode("signin");
+      } else if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -43,13 +60,19 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Account created. You're signed in.");
+        if (data.session) {
+          toast.success("Account created. You're signed in.");
+          await routeAfterAuth(data.user!.id);
+        } else {
+          toast.success("Account created. Check your email to confirm your address, then sign in.");
+          setMode("signin");
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back.");
+        await routeAfterAuth(data.user.id);
       }
-      navigate({ to: "/" });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong.";
       toast.error(message);
@@ -63,15 +86,17 @@ function AuthPage() {
       <section className="container-lux py-24 md:py-32">
         <div className="max-w-md mx-auto border hairline bg-card rounded-3xl p-10 shadow-pill">
           <div className="text-xs uppercase tracking-[0.35em] text-gold">
-            {mode === "signin" ? "Welcome back" : "Create your account"}
+            {mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset password"}
           </div>
           <h1 className="mt-3 font-display text-4xl">
-            {mode === "signin" ? "Sign in." : "Join us."}
+            {mode === "signin" ? "Sign in." : mode === "signup" ? "Join us." : "Forgot password?"}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             {mode === "signin"
               ? "Access your orders, wishlist and saved projects."
-              : "It takes a minute — no card required."}
+              : mode === "signup"
+                ? "It takes a minute — no card required."
+                : "Enter your email and we'll send you a link to set a new password."}
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -97,27 +122,43 @@ function AuthPage() {
                 placeholder="you@example.com"
               />
             </label>
-            <label className="block">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Password</span>
-              <PasswordInput
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full border hairline bg-background px-4 py-3 rounded-xl outline-none focus:border-[var(--gold)]"
-                placeholder="At least 6 characters"
-              />
-            </label>
+            {mode !== "forgot" && (
+              <label className="block">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Password</span>
+                <PasswordInput
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 w-full border hairline bg-background px-4 py-3 rounded-xl outline-none focus:border-[var(--gold)]"
+                  placeholder="At least 6 characters"
+                />
+              </label>
+            )}
             <button
               type="submit"
               disabled={busy}
               className="w-full mt-2 px-6 py-4 pill bg-[var(--ink)] text-[var(--ivory)] text-sm hover:bg-gold-gradient hover:text-[var(--ink)] transition-all disabled:opacity-60"
             >
-              {busy ? "Please wait..." : mode === "signin" ? "Sign in" : "Create account"}
+              {busy
+                ? "Please wait..."
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
             </button>
           </form>
 
-          <div className="mt-6 text-sm text-center text-muted-foreground">
+          {mode === "signin" && (
+            <div className="mt-3 text-center text-sm">
+              <button onClick={() => setMode("forgot")} className="text-gold hover:underline">
+                Forgot password?
+              </button>
+            </div>
+          )}
+
+          <div className="mt-4 text-sm text-center text-muted-foreground">
             {mode === "signin" ? (
               <>
                 No account?{" "}
@@ -127,9 +168,8 @@ function AuthPage() {
               </>
             ) : (
               <>
-                Already have an account?{" "}
                 <button onClick={() => setMode("signin")} className="text-gold hover:underline">
-                  Sign in
+                  ← Back to sign in
                 </button>
               </>
             )}

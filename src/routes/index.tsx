@@ -9,7 +9,7 @@ import { productPool, fallbackProduct } from "@/lib/images";
 import { supabase } from "@/integrations/supabase/client";
 import { useSettings, waLink } from "@/lib/settings";
 import { money } from "@/lib/money";
-import { seo, ldJson, localBusinessLd, breadcrumbLd } from "@/lib/seo";
+import { seo, ldJson, localBusinessLd, breadcrumbLd, organizationLd, websiteLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
       path: "/",
       keywords: "pool tables Rwanda, billiards Kigali, snooker table price Rwanda, buy pool table Kigali, carom table, billiard accessories Rwanda, pool table installation Kigali",
     }),
-    scripts: [ldJson(localBusinessLd)],
+    scripts: [ldJson(localBusinessLd), ldJson(organizationLd), ldJson(websiteLd)],
   }),
   component: Home,
 });
